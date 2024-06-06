@@ -58,6 +58,42 @@ abstract class RangeBounds<C extends Comparable<C>> {
     };
     return startMatches && endMatches;
   }
+
+  bool intersects(RangeBounds<C> range) {
+    final startMatches = switch (startBound) {
+      InclusiveBound(value: final thisStartValue) => switch (range.endBound) {
+          InclusiveBound(value: final otherEndValue) =>
+            thisStartValue.compareTo(otherEndValue) <= 0,
+          ExclusiveBound(value: final otherEndValue) =>
+            thisStartValue.compareTo(otherEndValue) < 0,
+          UnboundedBound() => true,
+        },
+      ExclusiveBound(value: final thisStartValue) => switch (range.endBound) {
+          InclusiveBound(value: final otherEndValue) ||
+          ExclusiveBound(value: final otherEndValue) =>
+            thisStartValue.compareTo(otherEndValue) < 0,
+          UnboundedBound() => true,
+        },
+      UnboundedBound() => true,
+    };
+    final endMatches = switch (endBound) {
+      InclusiveBound(value: final thisEndValue) => switch (range.startBound) {
+          InclusiveBound(value: final otherStartValue) =>
+            thisEndValue.compareTo(otherStartValue) >= 0,
+          ExclusiveBound(value: final otherStartValue) =>
+            thisEndValue.compareTo(otherStartValue) > 0,
+          UnboundedBound() => true,
+        },
+      ExclusiveBound(value: final thisEndValue) => switch (range.startBound) {
+          InclusiveBound(value: final otherStartValue) ||
+          ExclusiveBound(value: final otherStartValue) =>
+            thisEndValue.compareTo(otherStartValue) > 0,
+          UnboundedBound() => true,
+        },
+      UnboundedBound() => true,
+    };
+    return startMatches && endMatches;
+  }
 }
 
 class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
