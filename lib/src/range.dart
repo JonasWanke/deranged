@@ -60,6 +60,18 @@ abstract class RangeBounds<C extends Comparable<C>> {
   }
 }
 
+class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
+  const AnyRange(this.startBound, this.endBound);
+
+  @override
+  final InclusiveBound<C> startBound;
+  @override
+  final ExclusiveBound<C> endBound;
+
+  @override
+  String toString() => 'AnyRange($startBound, $endBound)';
+}
+
 /// An unbounded range.
 class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeFull();
