@@ -21,6 +21,9 @@ final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
   @override
   InclusiveBound<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
       InclusiveBound(mapper(value));
+
+  @override
+  String toString() => 'InclusiveBound($value)';
 }
 
 final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
@@ -34,6 +37,9 @@ final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
   @override
   ExclusiveBound<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
       ExclusiveBound(mapper(value));
+
+  @override
+  String toString() => 'ExclusiveBound($value)';
 }
 
 final class UnboundedBound<C extends Comparable<C>> extends Bound<C> {
@@ -45,4 +51,7 @@ final class UnboundedBound<C extends Comparable<C>> extends Bound<C> {
   @override
   UnboundedBound<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
       const UnboundedBound();
+
+  @override
+  String toString() => 'UnboundedBound';
 }
