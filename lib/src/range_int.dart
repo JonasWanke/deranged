@@ -19,6 +19,7 @@ class IntRange extends Range<num> with Iterable<int> {
   int get start => super.start as int;
   @override
   int get end => super.end as int;
+  int get endInclusive => end - 1;
 
   @override
   Iterator<int> get iterator =>
@@ -26,7 +27,7 @@ class IntRange extends Range<num> with Iterable<int> {
   @override
   int get length => end - start;
   @override
-  int get last => end;
+  int get last => isEmpty ? throw StateError('No element') : end - 1;
   @override
   int elementAt(int index) {
     if (index < 0 || index >= length) {
