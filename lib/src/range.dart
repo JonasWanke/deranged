@@ -140,6 +140,9 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
 // A closed range: both start and end are included.
 class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeInclusive(this.start, this.endInclusive);
+  const RangeInclusive.single(C value)
+      : start = value,
+        endInclusive = value;
 
   final C start;
   final C endInclusive;
