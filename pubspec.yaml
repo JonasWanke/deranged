@@ -3,7 +3,7 @@ version: 0.0.0
 repository: https://github.com/JonasWanke/ranges
 
 environment:
-  sdk: ^3.4.0
+  sdk: ^3.5.0
 
 dependencies:
   collection: ^1.15.0
