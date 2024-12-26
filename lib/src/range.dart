@@ -1,6 +1,5 @@
 import 'bound.dart';
 
-// TODO(JonasWanke): final class accepting two bounds?
 abstract class RangeBounds<C extends Comparable<C>> {
   const RangeBounds();
 
