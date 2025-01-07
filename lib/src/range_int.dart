@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'range.dart';
 
 // TODO(JonasWanke): `IntRangeBounds`?
@@ -12,7 +14,55 @@ class IntRangeFull extends RangeFull<num> {
   String toString() => 'IntRangeFull()';
 }
 
-class IntRange extends RangeInclusive<num> with Iterable<int> {
+class IntProgression with Iterable<int> {
+  const IntProgression(this.start, this.endInclusive, this.step)
+      : assert(step != 0);
+
+  final int start;
+  final int endInclusive;
+  final int step;
+
+  IntProgression stepBy(int step) => IntProgression(start, endInclusive, step);
+
+  @override
+  Iterator<int> get iterator =>
+      Iterable.generate(length, (i) => start + i * step).iterator;
+  @override
+  int get length => max(0, (endInclusive + step - start) ~/ step);
+  @override
+  int get last => isEmpty
+      ? throw StateError('No element')
+      : step > 0
+          ? endInclusive - (endInclusive - start) % step
+          : endInclusive + (start - endInclusive) % -step;
+  @override
+  int elementAt(int index) {
+    if (index < 0 || index >= length) {
+      throw IndexError.withLength(
+        index,
+        length,
+        indexable: this,
+        name: 'index',
+      );
+    }
+    return start + index * step;
+  }
+
+  @override
+  bool contains(Object? element) {
+    if (element is! int) return false;
+    if (step > 0 && (element < start || element > endInclusive)) return false;
+    if (step < 0 && (element < endInclusive || element > start)) return false;
+    return (element - start) % step == 0;
+  }
+
+  @override
+  String toString() => 'IntProgression($start..$endInclusive step $step)';
+}
+
+class IntRange extends RangeInclusive<num>
+    with Iterable<int>
+    implements IntProgression {
   const IntRange(super.start, super.endInclusive);
 
   @override
@@ -20,6 +70,11 @@ class IntRange extends RangeInclusive<num> with Iterable<int> {
   @override
   int get endInclusive => super.endInclusive as int;
   int get endExclusive => endInclusive + 1;
+  @override
+  int get step => 1;
+
+  @override
+  IntProgression stepBy(int step) => IntProgression(start, endInclusive, step);
 
   @override
   Iterator<int> get iterator =>
