@@ -8,15 +8,13 @@ abstract class RangeBounds<C extends Comparable<C>> {
 
   bool contains(C value) {
     final startMatches = switch (startBound) {
-      InclusiveBound(value: final startValue) =>
-        startValue.compareTo(value) <= 0,
-      ExclusiveBound(value: final startValue) =>
-        startValue.compareTo(value) < 0,
+      InclusiveBound(value: final start) => start.compareTo(value) <= 0,
+      ExclusiveBound(value: final start) => start.compareTo(value) < 0,
       UnboundedBound() => true,
     };
     final endMatches = switch (endBound) {
-      InclusiveBound(value: final endValue) => endValue.compareTo(value) >= 0,
-      ExclusiveBound(value: final endValue) => endValue.compareTo(value) > 0,
+      InclusiveBound(value: final end) => end.compareTo(value) >= 0,
+      ExclusiveBound(value: final end) => end.compareTo(value) > 0,
       UnboundedBound() => true,
     };
     return startMatches && endMatches;
@@ -24,33 +22,33 @@ abstract class RangeBounds<C extends Comparable<C>> {
 
   bool containsRange(RangeBounds<C> range) {
     final startMatches = switch (startBound) {
-      InclusiveBound(value: final thisStartValue) => switch (range.startBound) {
-          InclusiveBound(value: final otherStartValue) ||
-          ExclusiveBound(value: final otherStartValue) =>
-            thisStartValue.compareTo(otherStartValue) <= 0,
+      InclusiveBound(value: final thisStart) => switch (range.startBound) {
+          InclusiveBound(value: final otherStart) ||
+          ExclusiveBound(value: final otherStart) =>
+            thisStart.compareTo(otherStart) <= 0,
           UnboundedBound() => false,
         },
-      ExclusiveBound(value: final thisStartValue) => switch (range.startBound) {
-          InclusiveBound(value: final otherStartValue) =>
-            thisStartValue.compareTo(otherStartValue) < 0,
-          ExclusiveBound(value: final otherStartValue) =>
-            thisStartValue.compareTo(otherStartValue) <= 0,
+      ExclusiveBound(value: final thisStart) => switch (range.startBound) {
+          InclusiveBound(value: final otherStart) =>
+            thisStart.compareTo(otherStart) < 0,
+          ExclusiveBound(value: final otherStart) =>
+            thisStart.compareTo(otherStart) <= 0,
           UnboundedBound() => false,
         },
       UnboundedBound() => true,
     };
     final endMatches = switch (endBound) {
-      InclusiveBound(value: final thisEndValue) => switch (range.endBound) {
-          InclusiveBound(value: final otherEndValue) ||
-          ExclusiveBound(value: final otherEndValue) =>
-            thisEndValue.compareTo(otherEndValue) >= 0,
+      InclusiveBound(value: final thisEnd) => switch (range.endBound) {
+          InclusiveBound(value: final otherEnd) ||
+          ExclusiveBound(value: final otherEnd) =>
+            thisEnd.compareTo(otherEnd) >= 0,
           UnboundedBound() => false,
         },
-      ExclusiveBound(value: final thisEndValue) => switch (range.endBound) {
-          InclusiveBound(value: final otherEndValue) =>
-            thisEndValue.compareTo(otherEndValue) > 0,
-          ExclusiveBound(value: final otherEndValue) =>
-            thisEndValue.compareTo(otherEndValue) >= 0,
+      ExclusiveBound(value: final thisEnd) => switch (range.endBound) {
+          InclusiveBound(value: final otherEnd) =>
+            thisEnd.compareTo(otherEnd) > 0,
+          ExclusiveBound(value: final otherEnd) =>
+            thisEnd.compareTo(otherEnd) >= 0,
           UnboundedBound() => false,
         },
       UnboundedBound() => true,
@@ -60,33 +58,33 @@ abstract class RangeBounds<C extends Comparable<C>> {
 
   bool intersects(RangeBounds<C> range) {
     final startMatches = switch (startBound) {
-      InclusiveBound(value: final thisStartValue) => switch (range.endBound) {
-          InclusiveBound(value: final otherEndValue) =>
-            thisStartValue.compareTo(otherEndValue) <= 0,
-          ExclusiveBound(value: final otherEndValue) =>
-            thisStartValue.compareTo(otherEndValue) < 0,
+      InclusiveBound(value: final thisStart) => switch (range.endBound) {
+          InclusiveBound(value: final otherEnd) =>
+            thisStart.compareTo(otherEnd) <= 0,
+          ExclusiveBound(value: final otherEnd) =>
+            thisStart.compareTo(otherEnd) < 0,
           UnboundedBound() => true,
         },
-      ExclusiveBound(value: final thisStartValue) => switch (range.endBound) {
-          InclusiveBound(value: final otherEndValue) ||
-          ExclusiveBound(value: final otherEndValue) =>
-            thisStartValue.compareTo(otherEndValue) < 0,
+      ExclusiveBound(value: final thisStart) => switch (range.endBound) {
+          InclusiveBound(value: final otherEnd) ||
+          ExclusiveBound(value: final otherEnd) =>
+            thisStart.compareTo(otherEnd) < 0,
           UnboundedBound() => true,
         },
       UnboundedBound() => true,
     };
     final endMatches = switch (endBound) {
-      InclusiveBound(value: final thisEndValue) => switch (range.startBound) {
-          InclusiveBound(value: final otherStartValue) =>
-            thisEndValue.compareTo(otherStartValue) >= 0,
-          ExclusiveBound(value: final otherStartValue) =>
-            thisEndValue.compareTo(otherStartValue) > 0,
+      InclusiveBound(value: final thisEnd) => switch (range.startBound) {
+          InclusiveBound(value: final otherStart) =>
+            thisEnd.compareTo(otherStart) >= 0,
+          ExclusiveBound(value: final otherStart) =>
+            thisEnd.compareTo(otherStart) > 0,
           UnboundedBound() => true,
         },
-      ExclusiveBound(value: final thisEndValue) => switch (range.startBound) {
-          InclusiveBound(value: final otherStartValue) ||
-          ExclusiveBound(value: final otherStartValue) =>
-            thisEndValue.compareTo(otherStartValue) > 0,
+      ExclusiveBound(value: final thisEnd) => switch (range.startBound) {
+          InclusiveBound(value: final otherStart) ||
+          ExclusiveBound(value: final otherStart) =>
+            thisEnd.compareTo(otherStart) > 0,
           UnboundedBound() => true,
         },
       UnboundedBound() => true,
