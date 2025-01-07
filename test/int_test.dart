@@ -67,13 +67,13 @@ void main() {
     expect(range.contains(start + 10000), true);
   });
 
-  Glados<int>().test('IntRangeTo', (start) {
-    final range = IntRangeTo(start);
+  Glados<int>().test('IntRangeTo', (endInclusive) {
+    final range = IntRangeTo(endInclusive);
 
-    expect(range.contains(start - 10000), true);
-    expect(range.contains(start - 1), true);
-    expect(range.contains(start), false);
-    expect(range.contains(start + 1), false);
+    expect(range.contains(endInclusive - 10000), true);
+    expect(range.contains(endInclusive - 1), true);
+    expect(range.contains(endInclusive), true);
+    expect(range.contains(endInclusive + 1), false);
   });
 
   group('IntProgression', () {
