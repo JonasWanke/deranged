@@ -43,7 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        sdk: [stable, beta, dev, "3.5.0"]
+        # The linter throws an exception in 3.5.0:
+        # https://github.com/dart-lang/sdk/issues/59560
+        sdk: [stable, beta, dev, "3.6.0"]
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
