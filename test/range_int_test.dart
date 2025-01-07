@@ -4,10 +4,11 @@ import 'package:ranges/ranges.dart';
 void main() {
   group('IntRange', () {
     Glados<int>().test('empty', (start) {
-      final range = IntRange(start, start);
+      final range = IntRange(start, start - 1);
 
       expect(range.isEmpty, true);
       expect(range.endInclusive, start - 1);
+      expect(range.endExclusive, start);
       expect(range.toList(), <int>[]);
       expect(range.length, 0);
       expect(() => range.first, throwsA(isA<StateError>()));
@@ -19,10 +20,11 @@ void main() {
     });
 
     Glados<int>().test('one element', (start) {
-      final range = IntRange(start, start + 1);
+      final range = IntRange(start, start);
 
       expect(range.isEmpty, false);
       expect(range.endInclusive, start);
+      expect(range.endExclusive, start + 1);
       expect(range.toList(), [start]);
       expect(range.length, 1);
       expect(range.first, start);
@@ -35,10 +37,11 @@ void main() {
     });
 
     Glados<int>().test('two elements', (start) {
-      final range = IntRange(start, start + 2);
+      final range = IntRange(start, start + 1);
 
       expect(range.isEmpty, false);
       expect(range.endInclusive, start + 1);
+      expect(range.endExclusive, start + 2);
       expect(range.toList(), [start, start + 1]);
       expect(range.length, 2);
       expect(range.first, start);

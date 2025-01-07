@@ -12,22 +12,22 @@ class IntRangeFull extends RangeFull<num> {
   String toString() => 'IntRangeFull()';
 }
 
-class IntRange extends Range<num> with Iterable<int> {
-  const IntRange(super.start, super.end);
+class IntRange extends RangeInclusive<num> with Iterable<int> {
+  const IntRange(super.start, super.endInclusive);
 
   @override
   int get start => super.start as int;
   @override
-  int get end => super.end as int;
-  int get endInclusive => end - 1;
+  int get endInclusive => super.endInclusive as int;
+  int get endExclusive => endInclusive + 1;
 
   @override
   Iterator<int> get iterator =>
       Iterable.generate(length, (i) => start + i).iterator;
   @override
-  int get length => end - start;
+  int get length => endExclusive - start;
   @override
-  int get last => isEmpty ? throw StateError('No element') : end - 1;
+  int get last => isEmpty ? throw StateError('No element') : endInclusive;
   @override
   int elementAt(int index) {
     if (index < 0 || index >= length) {
@@ -43,10 +43,10 @@ class IntRange extends Range<num> with Iterable<int> {
 
   @override
   bool contains(Object? element) =>
-      element is int && start <= element && element < end;
+      element is int && start <= element && element <= endInclusive;
 
   @override
-  String toString() => 'IntRange($start ≤ value < $end)';
+  String toString() => 'IntRange($start ≤ value ≤ $endInclusive)';
 }
 
 // TODO(JonasWanke): Handle large numbers?
@@ -107,6 +107,9 @@ class IntRangeTo extends RangeTo<num> {
 }
 
 extension CreateIntRangeExtension on int {
-  IntRange rangeUntil(int other) => IntRange(this, other);
-  IntRange rangeTo(int other) => IntRange(this, other + 1);
+  /// Creates a range from `this` (inclusive) to [other] (exclusive).
+  IntRange rangeUntil(int other) => IntRange(this, other - 1);
+
+  /// Creates a range from `this` (inclusive) to [other] (inclusive).
+  IntRange rangeTo(int other) => IntRange(this, other);
 }
