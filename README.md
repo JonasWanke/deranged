@@ -35,4 +35,4 @@ If there's no specific range class for the bounds you want, you can use the `Any
 In Dart, `int` does not implement `Comparable<int>`, but rather `Comparable<num>`.
 Hence, it's not possible to create a `Range<int>`.
 Therefore, this package offers a set of range types that are specifically designed to work with `int` values.
-These inherit from `Range<num>` (or other range classes with `num`) but have overrides for the public API to return `int` values.
+These inherit from `Range<num>` (or other range classes with `num`), but have overrides for the public API to return `int` values.
