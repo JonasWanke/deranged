@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print, avoid-collection-methods-with-unrelated-types
 
-import 'package:ranges/ranges.dart';
+import 'package:deranged/deranged.dart';
 
 void main() {
   // Ranges

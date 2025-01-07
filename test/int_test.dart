@@ -1,5 +1,5 @@
+import 'package:deranged/deranged.dart';
 import 'package:glados/glados.dart';
-import 'package:ranges/ranges.dart';
 
 void main() {
   group('IntRange', () {

@@ -1,6 +1,6 @@
+import 'package:deranged/deranged.dart';
 import 'package:glados/glados.dart';
 import 'package:meta/meta.dart';
-import 'package:ranges/ranges.dart';
 
 void main() {
   final examples = {
