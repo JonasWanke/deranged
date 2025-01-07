@@ -115,7 +115,7 @@ class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get endBound => const UnboundedBound();
 
   @override
-  String toString() => 'RangeFull()';
+  String toString() => 'RangeFull(..)';
 }
 
 // A half-open range: start is included, end is excluded.
@@ -131,7 +131,7 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
 
   @override
-  String toString() => 'Range($start ≤ value < $end)';
+  String toString() => 'Range($start..$end)';
 }
 
 // A closed range: both start and end are included.
@@ -150,7 +150,7 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   InclusiveBound<C> get endBound => InclusiveBound(endInclusive);
 
   @override
-  String toString() => 'RangeInclusive($start ≤ value ≤ $endInclusive)';
+  String toString() => 'RangeInclusive($start..=$endInclusive)';
 }
 
 // A range starting from an inclusive bound and without an end bound.
@@ -165,7 +165,7 @@ class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get endBound => const UnboundedBound();
 
   @override
-  String toString() => 'RangeFrom($start ≤ value)';
+  String toString() => 'RangeFrom($start..)';
 }
 
 // TODO(JonasWanke): Naming – `RangeUntil`?
@@ -181,25 +181,28 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
 
   @override
-  String toString() => 'RangeTo(value < $end)';
+  String toString() => 'RangeTo(..$end)';
 }
 
 // A range ending with an inclusive bound and without a start bound.
 class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
-  const RangeToInclusive(this.end);
+  const RangeToInclusive(this.endInclusive);
 
-  final C end;
+  final C endInclusive;
 
   @override
   UnboundedBound<C> get startBound => const UnboundedBound();
   @override
-  InclusiveBound<C> get endBound => InclusiveBound(end);
+  InclusiveBound<C> get endBound => InclusiveBound(endInclusive);
 
   @override
-  String toString() => 'RangeToInclusive(value ≤ $end)';
+  String toString() => 'RangeToInclusive(..=$endInclusive)';
 }
 
 extension CreateRangeExtension<C extends Comparable<C>> on C {
+  /// Creates a range from `this` (inclusive) to [other] (exclusive).
   Range<C> rangeUntil(C other) => Range(this, other);
+
+  /// Creates a range from `this` (inclusive) to [other] (inclusive).
   RangeInclusive<C> rangeTo(C other) => RangeInclusive(this, other);
 }

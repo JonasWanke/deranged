@@ -11,7 +11,7 @@ class IntRangeFull extends RangeFull<num> {
   bool contains(Object? value) => value is int;
 
   @override
-  String toString() => 'IntRangeFull()';
+  String toString() => 'IntRangeFull(..)';
 }
 
 class IntProgression with Iterable<int> {
@@ -57,7 +57,7 @@ class IntProgression with Iterable<int> {
   }
 
   @override
-  String toString() => 'IntProgression($start..$endInclusive step $step)';
+  String toString() => 'IntProgression($start..=$endInclusive stepBy $step)';
 }
 
 class IntRange extends RangeInclusive<num>
@@ -101,7 +101,7 @@ class IntRange extends RangeInclusive<num>
       element is int && start <= element && element <= endInclusive;
 
   @override
-  String toString() => 'IntRange($start ≤ value ≤ $endInclusive)';
+  String toString() => 'IntRange($start..=$endInclusive)';
 }
 
 // TODO(JonasWanke): Handle large numbers?
@@ -130,7 +130,7 @@ class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
   bool contains(Object? element) => element is int && start <= element;
 
   @override
-  String toString() => 'IntRangeFrom($start ≤ value)';
+  String toString() => 'IntRangeFrom($start..)';
 }
 
 class _IntRangeFromIterator implements Iterator<int> {
@@ -148,17 +148,18 @@ class _IntRangeFromIterator implements Iterator<int> {
   }
 }
 
-class IntRangeTo extends RangeTo<num> {
-  const IntRangeTo(super.end);
+class IntRangeTo extends RangeToInclusive<num> {
+  const IntRangeTo(super.endInclusive);
+
+  int get endExclusive => endInclusive - 1;
+  @override
+  int get endInclusive => super.endInclusive as int;
 
   @override
-  int get end => super.end as int;
+  bool contains(Object? value) => value is int && value <= endInclusive;
 
   @override
-  bool contains(Object? value) => value is int && value < end;
-
-  @override
-  String toString() => 'IntRangeTo(value < $end)';
+  String toString() => 'IntRangeTo(..=$endInclusive)';
 }
 
 extension CreateIntRangeExtension on int {
