@@ -2,6 +2,9 @@ import 'package:deranged/deranged.dart';
 import 'package:glados/glados.dart';
 
 void main() {
+  Glados<int>().test('IntRangeFull', (value) {
+    expect(const IntRangeFull().contains(value), true);
+  });
   group('IntRange', () {
     Glados<int>().test('empty', (start) {
       final range = IntRange(start, start - 1);
