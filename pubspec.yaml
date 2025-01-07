@@ -1,4 +1,5 @@
 name: ranges
+description: Generic range and progression classes, inspired by Rust and Kotlin
 version: 0.0.0
 repository: https://github.com/JonasWanke/ranges
 

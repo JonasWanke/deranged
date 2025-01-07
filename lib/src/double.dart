@@ -82,7 +82,7 @@ class DoubleRangeToInclusive extends RangeToInclusive<num> {
   String toString() => 'DoubleRangeToInclusive(..=$endInclusive)';
 }
 
-extension CreateDoubleRangeExtension on double {
+extension DoubleExtension on double {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   DoubleRange rangeUntil(double other) => DoubleRange(this, other - 1);
 

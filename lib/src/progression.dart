@@ -1,5 +1,9 @@
 import 'dart:math';
 
+import 'package:meta/meta.dart';
+
+import 'int.dart';
+
 /// A progression of values of type [T], defined by a [start], [endInclusive],
 /// and [step].
 ///
@@ -13,6 +17,7 @@ import 'dart:math';
 ///
 /// - [IntProgression], a progression of [int] values.
 /// - [StepProgression], a progression of values that implement [Step].
+@immutable
 abstract class Progression<T> implements Iterable<T> {
   const Progression(this.start, this.endInclusive, this.step)
       : assert(step != 0);
@@ -23,6 +28,7 @@ abstract class Progression<T> implements Iterable<T> {
 }
 
 /// Objects that have successor and predecessor operations.
+@immutable
 abstract interface class Step<C extends Step<C>> implements Comparable<C> {
   /// Returns the result of moving [count] steps forward from this.
   ///

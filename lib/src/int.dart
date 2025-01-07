@@ -1,9 +1,9 @@
 import 'dart:math';
 
+import 'progression.dart';
 import 'range.dart';
 
-// TODO(JonasWanke): `IntRangeBounds`?
-
+/// An unbounded range of [int].
 class IntRangeFull extends RangeFull<num> {
   const IntRangeFull();
 
@@ -14,52 +14,7 @@ class IntRangeFull extends RangeFull<num> {
   String toString() => 'IntRangeFull(..)';
 }
 
-class IntProgression with Iterable<int> {
-  const IntProgression(this.start, this.endInclusive, this.step)
-      : assert(step != 0);
-
-  final int start;
-  final int endInclusive;
-  final int step;
-
-  IntProgression stepBy(int step) => IntProgression(start, endInclusive, step);
-
-  @override
-  Iterator<int> get iterator =>
-      Iterable.generate(length, (i) => start + i * step).iterator;
-  @override
-  int get length => max(0, (endInclusive + step - start) ~/ step);
-  @override
-  int get last => isEmpty
-      ? throw StateError('No element')
-      : step > 0
-          ? endInclusive - (endInclusive - start) % step
-          : endInclusive + (start - endInclusive) % -step;
-  @override
-  int elementAt(int index) {
-    if (index < 0 || index >= length) {
-      throw IndexError.withLength(
-        index,
-        length,
-        indexable: this,
-        name: 'index',
-      );
-    }
-    return start + index * step;
-  }
-
-  @override
-  bool contains(Object? element) {
-    if (element is! int) return false;
-    if (step > 0 && (element < start || element > endInclusive)) return false;
-    if (step < 0 && (element < endInclusive || element > start)) return false;
-    return (element - start) % step == 0;
-  }
-
-  @override
-  String toString() => 'IntProgression($start..=$endInclusive stepBy $step)';
-}
-
+// A closed range of [int]: both start and end are included.
 class IntRange extends RangeInclusive<num>
     with Iterable<int>
     implements IntProgression {
@@ -73,7 +28,8 @@ class IntRange extends RangeInclusive<num>
   @override
   int get step => 1;
 
-  @override
+  /// Returns an [IntProgression] with this range's [start] and [endInclusive],
+  /// as well as the given [step].
   IntProgression stepBy(int step) => IntProgression(start, endInclusive, step);
 
   @override
@@ -104,7 +60,7 @@ class IntRange extends RangeInclusive<num>
   String toString() => 'IntRange($start..=$endInclusive)';
 }
 
-// TODO(JonasWanke): Handle large numbers?
+/// A range of [int] starting from an inclusive bound and without an end bound.
 class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
   const IntRangeFrom(super.start);
 
@@ -148,6 +104,7 @@ class _IntRangeFromIterator implements Iterator<int> {
   }
 }
 
+/// A range of [int] ending with an inclusive bound and without a start bound.
 class IntRangeTo extends RangeToInclusive<num> {
   const IntRangeTo(super.endInclusive);
 
@@ -162,10 +119,62 @@ class IntRangeTo extends RangeToInclusive<num> {
   String toString() => 'IntRangeTo(..=$endInclusive)';
 }
 
-extension CreateIntRangeExtension on int {
+extension IntExtension on int {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   IntRange rangeUntil(int other) => IntRange(this, other - 1);
 
   /// Creates a range from `this` (inclusive) to [other] (inclusive).
   IntRange rangeTo(int other) => IntRange(this, other);
+}
+
+/// A [Progression] of [int] values, defined by a [start], [endInclusive], and
+/// [step].
+///
+/// {@macro deranged.Progression.empty}
+///
+/// See also:
+///
+/// - [Progression], the base class for progressions.
+/// - [StepProgression], a progression of values that implement [Step].
+class IntProgression extends Progression<int> with Iterable<int> {
+  const IntProgression(super.start, super.endInclusive, super.step)
+      : assert(step != 0);
+
+  @override
+  Iterator<int> get iterator =>
+      Iterable.generate(length, (i) => start + i * step).iterator;
+  @override
+  int get length => max(0, (endInclusive + step - start) ~/ step);
+  @override
+  int get last {
+    if (isEmpty) throw StateError('No element');
+
+    return step > 0
+        ? endInclusive - (endInclusive - start) % step
+        : endInclusive + (start - endInclusive) % -step;
+  }
+
+  @override
+  int elementAt(int index) {
+    if (index < 0 || index >= length) {
+      throw IndexError.withLength(
+        index,
+        length,
+        indexable: this,
+        name: 'index',
+      );
+    }
+    return start + index * step;
+  }
+
+  @override
+  bool contains(Object? element) {
+    if (element is! int) return false;
+    if (step > 0 && (element < start || element > endInclusive)) return false;
+    if (step < 0 && (element < endInclusive || element > start)) return false;
+    return (element - start) % step == 0;
+  }
+
+  @override
+  String toString() => 'IntProgression($start..=$endInclusive stepBy $step)';
 }

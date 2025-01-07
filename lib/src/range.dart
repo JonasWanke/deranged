@@ -1,11 +1,47 @@
-import 'bound.dart';
+import 'package:meta/meta.dart';
 
+import 'bound.dart';
+import 'double.dart';
+import 'int.dart';
+import 'progression.dart';
+
+/// Base class for [Range] & co., providing common methods.
+///
+/// Here's an overview of the different subclasses:
+///
+// ignore: lines_longer_than_80_chars
+/// | Start Bound | End Bound | Generic            | For [int]      | For [double]             |
+// ignore: lines_longer_than_80_chars
+/// | :---------- | :-------- | :----------------- | :------------- | :----------------------- |
+// ignore: lines_longer_than_80_chars
+/// | Inclusive   | Inclusive | [RangeInclusive]   | [IntRange]     | [DoubleRangeInclusive]   |
+// ignore: lines_longer_than_80_chars
+/// | Inclusive   | Exclusive | [Range]            | [IntRange]     | [DoubleRange]            |
+// ignore: lines_longer_than_80_chars
+/// | Inclusive   | Unbounded | [RangeFrom]        | [IntRangeFrom] | [DoubleRangeFrom]        |
+// ignore: lines_longer_than_80_chars
+/// | Exclusive   | Inclusive | —                  | —              | —                        |
+// ignore: lines_longer_than_80_chars
+/// | Exclusive   | Exclusive | —                  | —              | —                        |
+// ignore: lines_longer_than_80_chars
+/// | Exclusive   | Unbounded | —                  | —              | —                        |
+// ignore: lines_longer_than_80_chars
+/// | Unbounded   | Inclusive | [RangeToInclusive] | [IntRangeTo]   | [DoubleRangeToInclusive] |
+// ignore: lines_longer_than_80_chars
+/// | Unbounded   | Exclusive | [RangeTo]          | [IntRangeTo]   | [DoubleRangeTo]          |
+// ignore: lines_longer_than_80_chars
+/// | Unbounded   | Unbounded | [RangeFull]        | [IntRangeFull] | [DoubleRangeFull]        |
+@immutable
 abstract class RangeBounds<C extends Comparable<C>> {
   const RangeBounds();
 
+  /// The start bound of this range.
   Bound<C> get startBound;
+
+  /// The end bound of this range.
   Bound<C> get endBound;
 
+  /// Returns whether [value] is contained in this range.
   bool contains(C value) {
     final startMatches = switch (startBound) {
       InclusiveBound(value: final start) => start.compareTo(value) <= 0,
@@ -20,6 +56,7 @@ abstract class RangeBounds<C extends Comparable<C>> {
     return startMatches && endMatches;
   }
 
+  /// Returns whether this range contains the entire other [range].
   bool containsRange(RangeBounds<C> range) {
     final startMatches = switch (startBound) {
       InclusiveBound(value: final thisStart) => switch (range.startBound) {
@@ -56,6 +93,8 @@ abstract class RangeBounds<C extends Comparable<C>> {
     return startMatches && endMatches;
   }
 
+  /// Returns whether this and the other [range] have at least one element in
+  /// common.
   bool intersects(RangeBounds<C> range) {
     final startMatches = switch (startBound) {
       InclusiveBound(value: final thisStart) => switch (range.endBound) {
@@ -93,6 +132,7 @@ abstract class RangeBounds<C extends Comparable<C>> {
   }
 }
 
+/// A range supporting all possible [Bound]s.
 class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
   const AnyRange(this.startBound, this.endBound);
 
@@ -118,7 +158,7 @@ class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeFull(..)';
 }
 
-// A half-open range: start is included, end is excluded.
+/// A half-open range: start is included, end is excluded.
 class Range<C extends Comparable<C>> extends RangeBounds<C> {
   const Range(this.start, this.end);
 
@@ -134,7 +174,7 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'Range($start..$end)';
 }
 
-// A closed range: both start and end are included.
+/// A closed range: both start and end are included.
 class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeInclusive(this.start, this.endInclusive);
   const RangeInclusive.single(C value)
@@ -153,7 +193,15 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeInclusive($start..=$endInclusive)';
 }
 
-// A range starting from an inclusive bound and without an end bound.
+extension RangeInclusiveOfStepExtension<T extends Step<T>>
+    on RangeInclusive<T> {
+  /// Returns a [StepProgression] with this range's [start] and [endInclusive],
+  /// as well as the given [step].
+  StepProgression<T> stepBy(int step) =>
+      StepProgression(start, endInclusive, step);
+}
+
+/// A range starting from an inclusive bound and without an end bound.
 class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeFrom(this.start);
 
@@ -168,8 +216,7 @@ class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeFrom($start..)';
 }
 
-// TODO(JonasWanke): Naming – `RangeUntil`?
-// A range ending with an exclusive bound and without a start bound.
+/// A range ending with an exclusive bound and without a start bound.
 class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeTo(this.end);
 
@@ -184,7 +231,7 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeTo(..$end)';
 }
 
-// A range ending with an inclusive bound and without a start bound.
+/// A range ending with an inclusive bound and without a start bound.
 class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeToInclusive(this.endInclusive);
 
@@ -199,7 +246,7 @@ class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeToInclusive(..=$endInclusive)';
 }
 
-extension CreateRangeExtension<C extends Comparable<C>> on C {
+extension ComparableExtension<C extends Comparable<C>> on C {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   Range<C> rangeUntil(C other) => Range(this, other);
 

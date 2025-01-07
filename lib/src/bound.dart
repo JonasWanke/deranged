@@ -1,3 +1,12 @@
+import 'package:meta/meta.dart';
+
+/// One end of a range.
+///
+/// See also:
+/// - [InclusiveBound], which represents an inclusive bound.
+/// - [ExclusiveBound], which represents an exclusive bound.
+/// - [UnboundedBound], which represents an unbounded bound.
+@immutable
 sealed class Bound<C extends Comparable<C>> {
   const Bound();
 
@@ -7,9 +16,15 @@ sealed class Bound<C extends Comparable<C>> {
   /// Whether this is an [UnboundedBound].
   bool get isUnbounded => !isBounded;
 
+  /// Maps the value of this bound using [mapper].
   Bound<D> map<D extends Comparable<D>>(D Function(C) mapper);
 }
 
+/// An inclusive end of a range.
+///
+/// See also:
+/// - [ExclusiveBound], which represents an exclusive bound.
+/// - [UnboundedBound], which represents an unbounded bound.
 final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
   const InclusiveBound(this.value);
 
@@ -26,6 +41,11 @@ final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
   String toString() => 'InclusiveBound($value)';
 }
 
+/// An exclusive end of a range.
+///
+/// See also:
+/// - [InclusiveBound], which represents an inclusive bound.
+/// - [UnboundedBound], which represents an unbounded bound.
 final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
   const ExclusiveBound(this.value);
 
@@ -42,6 +62,11 @@ final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
   String toString() => 'ExclusiveBound($value)';
 }
 
+/// An unbounded end of a range.
+///
+/// See also:
+/// - [InclusiveBound], which represents an inclusive bound.
+/// - [ExclusiveBound], which represents an exclusive bound.
 final class UnboundedBound<C extends Comparable<C>> extends Bound<C> {
   const UnboundedBound();
 

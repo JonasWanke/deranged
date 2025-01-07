@@ -32,19 +32,22 @@ Since some functions might take only specific kinds of ranges, there are multipl
 To create a range, you can use the constructors of these classes directly, or use extension functions `.rangeUntil(…)` (for `Range`) or `.rangeTo(…)` (for `RangeInclusive`) on `Comparable` objects.
 If there's no specific range class for the bounds you want, you can use the `AnyRange` class with any bounds.
 
-## `IntProgression`
+## Progressions
 
-Unlike ranges, a progression contains only values that are multiples of a given step.
-
-You can create a progression using `start.rangeTo(end).stepBy(step)` or `IntProgression(start, end, step)`.
+Unlike ranges, `Progression`s contain only values that are multiples of a given `step` size.
 `step` supports both positive and negative values.
+All progressions implement `Iterable<T>`, so you can use them in `for` loops and other iterable operations.
 
-For example:
+You can create a progression using `start.rangeTo(end).stepBy(step)` or use their constructor directly:
 
 ```dart
-0.rangeTo(10).stepBy(2).toList(); // [0, 2, 4, 6, 8, 10]
-10.rangeTo(0).stepBy(-2).toList(); // [10, 8, 6, 4, 2, 0]
+0.rangeTo(10).stepBy(2); // 0, 2, 4, 6, 8, 10
+10.rangeTo(0).stepBy(-2); // 10, 8, 6, 4, 2, 0
+// Equivalent: `IntProgression(10, 0, -2)`
 ```
+
+For types other than `int`, you can use `StepProgression`.
+This requires the type to implement `Step` and `Comparable`.
 
 ## Note About `int` and `double` Ranges
 
