@@ -123,8 +123,14 @@ extension IntExtension on int {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   IntRange rangeUntil(int other) => IntRange(this, other - 1);
 
+  /// Creates a range from `this` (inclusive) to `this + length` (exclusive).
+  IntRange rangeUntilWithLength(int length) => IntRange(this, this + length);
+
   /// Creates a range from `this` (inclusive) to [other] (inclusive).
   IntRange rangeTo(int other) => IntRange(this, other);
+
+  /// Creates a range from `this` (inclusive) to `this + length` (inclusive).
+  IntRange rangeToWithLength(int length) => IntRange(this, this + length);
 }
 
 /// A [Progression] of [int] values, defined by a [start], [endInclusive], and

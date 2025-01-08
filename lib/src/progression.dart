@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'int.dart';
+import 'range.dart';
 
 /// A progression of values of type [T], defined by a [start], [endInclusive],
 /// and [step].
@@ -61,6 +62,16 @@ abstract interface class Step<C extends Step<C>> implements Comparable<C> {
   /// For example, if this were implemented for `int`:
   /// `2.stepsUntil(5) = 5 - 2 = 3`.
   int stepsUntil(C other);
+
+  /// Creates a range from `this` (inclusive) to `this.stepBy(length)`
+  /// (exclusive).
+  Range<C> rangeUntilWithLength(int length) =>
+      Range(this as C, this.stepBy(length));
+
+  /// Creates a range from `this` (inclusive) to `this.stepBy(length)`
+  /// (inclusive).
+  RangeInclusive<C> rangeToWithLength(int length) =>
+      RangeInclusive(this as C, this.stepBy(length));
 }
 
 /// A [Progression] of values of type [T], defined by a [start], [endInclusive],
