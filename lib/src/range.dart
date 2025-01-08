@@ -130,6 +130,17 @@ abstract class RangeBounds<C extends Comparable<C>> {
     };
     return startMatches && endMatches;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      other is RangeBounds<C> &&
+      startBound == other.startBound &&
+      endBound == other.endBound;
+  @override
+  int get hashCode => Object.hash(startBound, endBound);
+
+  @override
+  String toString() => 'RangeBounds($startBound, $endBound)';
 }
 
 /// A range supporting all possible [Bound]s.

@@ -25,6 +25,18 @@ abstract class Progression<T> implements Iterable<T> {
   final T start;
   final T endInclusive;
   final int step;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Progression<T> &&
+      start == other.start &&
+      endInclusive == other.endInclusive &&
+      step == other.step;
+  @override
+  int get hashCode => Object.hash(start, endInclusive, step);
+
+  @override
+  String toString() => 'Progression($start..=$endInclusive stepBy $step)';
 }
 
 /// Objects that have successor and predecessor operations.
