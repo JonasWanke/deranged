@@ -173,6 +173,8 @@ class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
 ///
 /// If [C] implements [Step], you can:
 ///
+/// - iterate through the range using the [RangeOfStepExtension.iter] extension
+///   getter
 /// - convert this range to a [RangeInclusive] (with an inclusive end bound)
 ///  using the [RangeOfStepExtension.inclusive] extension getter
 class Range<C extends Comparable<C>> extends RangeBounds<C> {
@@ -193,12 +195,18 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
 extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   /// Returns a [RangeInclusive] representing a range with the same values.
   RangeInclusive<T> get inclusive => RangeInclusive(start, end.stepBy(-1));
+
+  /// Returns an [Iterable] that steps through every value of this range in
+  /// ascending order.
+  Iterable<T> get iter => stepBy(1);
 }
 
 /// A closed range: both start and end are included.
 ///
 /// If [C] implements [Step], you can:
 ///
+/// - iterate through the range using the [RangeInclusiveOfStepExtension.iter]
+///   extension getter
 /// - convert this range to a [Range] (with an exclusive end bound) using the
 ///  [RangeInclusiveOfStepExtension.exclusive] extension getter
 class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
@@ -228,6 +236,10 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   /// as well as the given [step].
   StepProgression<T> stepBy(int step) =>
       StepProgression(start, endInclusive, step);
+
+  /// Returns an [Iterable] that steps through every value of this range in
+  /// ascending order.
+  Iterable<T> get iter => stepBy(1);
 }
 
 /// A range starting from an inclusive bound and without an end bound.
@@ -243,6 +255,12 @@ class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
 
   @override
   String toString() => 'RangeFrom($start..)';
+}
+
+extension RangeFromOfStepExtension<T extends Step<T>> on RangeFrom<T> {
+  /// Returns an [Iterable] that steps through every value of this range in
+  /// ascending order.
+  Iterable<T> get iter => const IntRangeFrom(0).map(start.stepBy);
 }
 
 /// A range ending with an exclusive bound and without a start bound.
