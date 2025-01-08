@@ -196,6 +196,11 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   /// Returns a [RangeInclusive] representing a range with the same values.
   RangeInclusive<T> get inclusive => RangeInclusive(start, end.stepBy(-1));
 
+  /// Returns a [StepProgression] with this range's [start] and [end],
+  /// as well as the given [step].
+  StepProgression<T> stepBy(int step) =>
+      StepProgression(start, end.stepBy(-1), step);
+
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
   Iterable<T> get iter => stepBy(1);
