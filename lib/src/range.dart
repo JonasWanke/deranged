@@ -170,6 +170,11 @@ class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
 }
 
 /// A half-open range: start is included, end is excluded.
+///
+/// If [C] implements [Step], you can:
+///
+/// - convert this range to a [RangeInclusive] (with an inclusive end bound)
+///  using the [RangeOfStepExtension.inclusive] extension getter
 class Range<C extends Comparable<C>> extends RangeBounds<C> {
   const Range(this.start, this.end);
 
@@ -185,7 +190,17 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'Range($start..$end)';
 }
 
+extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
+  /// Returns a [RangeInclusive] representing a range with the same values.
+  RangeInclusive<T> get inclusive => RangeInclusive(start, end.stepBy(-1));
+}
+
 /// A closed range: both start and end are included.
+///
+/// If [C] implements [Step], you can:
+///
+/// - convert this range to a [Range] (with an exclusive end bound) using the
+///  [RangeInclusiveOfStepExtension.exclusive] extension getter
 class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeInclusive(this.start, this.endInclusive);
   const RangeInclusive.single(C value)
@@ -206,6 +221,9 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
 
 extension RangeInclusiveOfStepExtension<T extends Step<T>>
     on RangeInclusive<T> {
+  /// Returns a [Range] representing a range with the same values.
+  Range<T> get exclusive => Range(start, endInclusive.stepBy(1));
+
   /// Returns a [StepProgression] with this range's [start] and [endInclusive],
   /// as well as the given [step].
   StepProgression<T> stepBy(int step) =>
