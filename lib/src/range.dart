@@ -224,6 +224,12 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
   Iterable<T> get iter => stepBy(1);
+
+  /// Returns the length of this range, i.e., how many steps it contains.
+  ///
+  /// For example, the length of a [Range] from 0 to 2 is 2 because it contains
+  /// the two elements 0 and 1.
+  int get length => start.stepsUntil(end);
 }
 
 /// A closed range: both start and end are included.
@@ -272,6 +278,12 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
   Iterable<T> get iter => stepBy(1);
+
+  /// Returns the length of this range, i.e., how many steps it contains.
+  ///
+  /// For example, the length of a [RangeInclusive] from 0 to 2 is 3 because it
+  /// contains the three elements 0, 1, and 2.
+  int get length => start.stepsUntil(endInclusive) + 1;
 }
 
 /// A range starting from an inclusive bound and without an end bound.
