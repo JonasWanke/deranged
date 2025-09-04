@@ -16,8 +16,11 @@ sealed class Bound<C extends Comparable<C>> {
   /// Whether this is an [UnboundedBound].
   bool get isUnbounded => !isBounded;
 
-  /// Maps the value of this bound using [mapper].
+  /// Map the value of this bound using [mapper].
   Bound<D> map<D extends Comparable<D>>(D Function(C) mapper);
+
+  /// Cast the value of this bound to [D].
+  Bound<D> cast<D extends Comparable<D>>();
 }
 
 /// An inclusive end of a range.
@@ -36,6 +39,9 @@ final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
   @override
   InclusiveBound<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
       InclusiveBound(mapper(value));
+  @override
+  InclusiveBound<D> cast<D extends Comparable<D>>() =>
+      InclusiveBound(value as D);
 
   @override
   String toString() => 'InclusiveBound($value)';
@@ -57,6 +63,9 @@ final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
   @override
   ExclusiveBound<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
       ExclusiveBound(mapper(value));
+  @override
+  ExclusiveBound<D> cast<D extends Comparable<D>>() =>
+      ExclusiveBound(value as D);
 
   @override
   String toString() => 'ExclusiveBound($value)';
@@ -76,6 +85,8 @@ final class UnboundedBound<C extends Comparable<C>> extends Bound<C> {
   @override
   UnboundedBound<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
       const UnboundedBound();
+  @override
+  UnboundedBound<D> cast<D extends Comparable<D>>() => UnboundedBound();
 
   @override
   String toString() => 'UnboundedBound';
