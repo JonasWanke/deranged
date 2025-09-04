@@ -131,14 +131,6 @@ abstract class RangeBounds<C extends Comparable<C>> {
     return startMatches && endMatches;
   }
 
-  /// Map the values of both bounds using [mapper].
-  RangeBounds<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
-      AnyRange(startBound.map(mapper), endBound.map(mapper));
-
-  /// Cast the values of both bounds to [D].
-  RangeBounds<D> cast<D extends Comparable<D>>() =>
-      AnyRange(startBound.cast(), endBound.cast());
-
   @override
   bool operator ==(Object other) =>
       other is RangeBounds<C> &&
@@ -174,12 +166,6 @@ class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get endBound => const UnboundedBound();
 
   @override
-  RangeFull<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
-      RangeFull();
-  @override
-  RangeFull<D> cast<D extends Comparable<D>>() => RangeFull();
-
-  @override
   String toString() => 'RangeFull(..)';
 }
 
@@ -201,12 +187,6 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
   InclusiveBound<C> get startBound => InclusiveBound(start);
   @override
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
-
-  @override
-  Range<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
-      Range(mapper(start), mapper(end));
-  @override
-  Range<D> cast<D extends Comparable<D>>() => Range(start as D, end as D);
 
   @override
   String toString() => 'Range($start..$end)';
@@ -255,13 +235,6 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   InclusiveBound<C> get endBound => InclusiveBound(endInclusive);
 
   @override
-  RangeInclusive<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
-      RangeInclusive(mapper(start), mapper(endInclusive));
-  @override
-  RangeInclusive<D> cast<D extends Comparable<D>>() =>
-      RangeInclusive(start as D, endInclusive as D);
-
-  @override
   String toString() => 'RangeInclusive($start..=$endInclusive)';
 }
 
@@ -298,12 +271,6 @@ class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get endBound => const UnboundedBound();
 
   @override
-  RangeFrom<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
-      RangeFrom(mapper(start));
-  @override
-  RangeFrom<D> cast<D extends Comparable<D>>() => RangeFrom(start as D);
-
-  @override
   String toString() => 'RangeFrom($start..)';
 }
 
@@ -325,12 +292,6 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
 
   @override
-  RangeTo<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
-      RangeTo(mapper(end));
-  @override
-  RangeTo<D> cast<D extends Comparable<D>>() => RangeTo(end as D);
-
-  @override
   String toString() => 'RangeTo(..$end)';
 }
 
@@ -344,13 +305,6 @@ class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get startBound => const UnboundedBound();
   @override
   InclusiveBound<C> get endBound => InclusiveBound(endInclusive);
-
-  @override
-  RangeToInclusive<D> map<D extends Comparable<D>>(D Function(C) mapper) =>
-      RangeToInclusive(mapper(endInclusive));
-  @override
-  RangeToInclusive<D> cast<D extends Comparable<D>>() =>
-      RangeToInclusive(endInclusive as D);
 
   @override
   String toString() => 'RangeToInclusive(..=$endInclusive)';

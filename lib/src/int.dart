@@ -68,12 +68,6 @@ class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
   int get start => super.start as int;
 
   @override
-  RangeFrom<D> map<D extends Comparable<D>>(D Function(int) mapper) =>
-      RangeFrom(mapper(start));
-  @override
-  RangeFrom<D> cast<D extends Comparable<D>>() => RangeFrom(start as D);
-
-  @override
   Iterator<int> get iterator => _IntRangeFromIterator(this);
   @override
   int elementAt(int index) {
