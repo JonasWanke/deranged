@@ -21,6 +21,11 @@ sealed class Bound<C extends Comparable<C>> {
 
   /// Cast the value of this bound to [D].
   Bound<D> cast<D extends Comparable<D>>();
+
+  @override
+  bool operator ==(Object other);
+  @override
+  int get hashCode;
 }
 
 /// An inclusive end of a range.
@@ -42,6 +47,13 @@ final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
   @override
   InclusiveBound<D> cast<D extends Comparable<D>>() =>
       InclusiveBound(value as D);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InclusiveBound<C> && value == other.value;
+  @override
+  int get hashCode => value.hashCode;
 
   @override
   String toString() => 'InclusiveBound($value)';
@@ -68,6 +80,13 @@ final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
       ExclusiveBound(value as D);
 
   @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExclusiveBound<C> && value == other.value;
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
   String toString() => 'ExclusiveBound($value)';
 }
 
@@ -87,6 +106,12 @@ final class UnboundedBound<C extends Comparable<C>> extends Bound<C> {
       const UnboundedBound();
   @override
   UnboundedBound<D> cast<D extends Comparable<D>>() => UnboundedBound();
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is UnboundedBound<C>;
+  @override
+  int get hashCode => 0;
 
   @override
   String toString() => 'UnboundedBound';
