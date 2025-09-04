@@ -148,9 +148,9 @@ class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
   const AnyRange(this.startBound, this.endBound);
 
   @override
-  final InclusiveBound<C> startBound;
+  final Bound<C> startBound;
   @override
-  final ExclusiveBound<C> endBound;
+  final Bound<C> endBound;
 
   @override
   String toString() => 'AnyRange($startBound, $endBound)';
