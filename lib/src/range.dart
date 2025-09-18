@@ -193,13 +193,15 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
 }
 
 extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
+  T get endInclusive => end.stepBy(-1);
+
   /// Returns a [RangeInclusive] representing a range with the same values.
-  RangeInclusive<T> get inclusive => RangeInclusive(start, end.stepBy(-1));
+  RangeInclusive<T> get inclusive => RangeInclusive(start, endInclusive);
 
   /// Returns a [StepProgression] with this range's [start] and [end],
   /// as well as the given [step].
   StepProgression<T> stepBy(int step) =>
-      StepProgression(start, end.stepBy(-1), step);
+      StepProgression(start, endInclusive, step);
 
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
@@ -211,7 +213,7 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   /// the two elements 0 and 1.
   int get length => start.stepsUntil(end);
 
-  StepProgression<T> get reverse => StepProgression(end.stepBy(-1), start, -1);
+  StepProgression<T> get reverse => StepProgression(endInclusive, start, -1);
 }
 
 /// A closed range: both start and end are included.
@@ -242,8 +244,10 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
 
 extension RangeInclusiveOfStepExtension<T extends Step<T>>
     on RangeInclusive<T> {
+  T get endExclusive => endInclusive.stepBy(1);
+
   /// Returns a [Range] representing a range with the same values.
-  Range<T> get exclusive => Range(start, endInclusive.stepBy(1));
+  Range<T> get exclusive => Range(start, endExclusive);
 
   /// Returns a [StepProgression] with this range's [start] and [endInclusive],
   /// as well as the given [step].
