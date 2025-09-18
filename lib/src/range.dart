@@ -210,6 +210,8 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   /// For example, the length of a [Range] from 0 to 2 is 2 because it contains
   /// the two elements 0 and 1.
   int get length => start.stepsUntil(end);
+
+  StepProgression<T> get reverse => StepProgression(end.stepBy(-1), start, -1);
 }
 
 /// A closed range: both start and end are included.
