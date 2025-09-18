@@ -263,6 +263,8 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   /// For example, the length of a [RangeInclusive] from 0 to 2 is 3 because it
   /// contains the three elements 0, 1, and 2.
   int get length => start.stepsUntil(endInclusive) + 1;
+
+  StepProgression<T> get reverse => StepProgression(endInclusive, start, -1);
 }
 
 /// A range starting from an inclusive bound and without an end bound.
