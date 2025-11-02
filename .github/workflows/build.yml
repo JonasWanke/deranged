@@ -15,7 +15,7 @@ jobs:
       matrix:
         sdk: [stable, beta, dev, "3.5.0"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
@@ -27,7 +27,7 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
       - run: dart pub get
 
@@ -47,7 +47,7 @@ jobs:
         # https://github.com/dart-lang/sdk/issues/59560
         sdk: [stable, beta, dev, "3.6.0"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
