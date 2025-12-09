@@ -1,4 +1,5 @@
 export 'src/bound.dart';
+export 'src/codec.dart';
 export 'src/double.dart';
 export 'src/int.dart';
 export 'src/progression.dart';
