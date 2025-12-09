@@ -16,8 +16,11 @@ class IntRangeFull extends RangeFull<num> {
 
 // A closed range of [int]: both start and end are included.
 class IntRange extends RangeInclusive<num>
-    with Iterable<int>
-    implements IntProgression {
+    with
+        Iterable<int>
+    implements
+        // ignore: avoid_implementing_value_types
+        IntProgression {
   const IntRange(super.start, super.endInclusive);
 
   @override

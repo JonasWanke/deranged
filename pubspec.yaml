@@ -4,14 +4,15 @@ version: 0.0.0
 repository: https://github.com/JonasWanke/deranged
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.1.0
 
 dependencies:
   collection: ^1.15.0
-  glados: ^1.1.7
+  json_annotation: ^4.9.0
   meta: ^1.3.0
 
 dev_dependencies:
+  glados: ^1.1.7
   supernova_lints:
     git:
       url: https://github.com/JonasWanke/supernova.git
