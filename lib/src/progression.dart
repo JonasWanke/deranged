@@ -27,6 +27,8 @@ abstract class Progression<T> implements Iterable<T> {
   final T endInclusive;
   final int step;
 
+  T operator [](int index) => elementAt(index);
+
   @override
   bool operator ==(Object other) =>
       other is Progression<T> &&

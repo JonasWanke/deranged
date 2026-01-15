@@ -214,6 +214,18 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   int get length => start.stepsUntil(end);
 
   StepProgression<T> get reverse => StepProgression(endInclusive, start, -1);
+
+  T operator [](int index) {
+    if (index < 0 || index >= length) {
+      throw IndexError.withLength(
+        index,
+        length,
+        indexable: this,
+        name: 'index',
+      );
+    }
+    return start.stepBy(index);
+  }
 }
 
 /// A closed range: both start and end are included.
@@ -265,6 +277,18 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   int get length => start.stepsUntil(endInclusive) + 1;
 
   StepProgression<T> get reverse => StepProgression(endInclusive, start, -1);
+
+  T operator [](int index) {
+    if (index < 0 || index >= length) {
+      throw IndexError.withLength(
+        index,
+        length,
+        indexable: this,
+        name: 'index',
+      );
+    }
+    return start.stepBy(index);
+  }
 }
 
 /// A range starting from an inclusive bound and without an end bound.
@@ -286,6 +310,8 @@ extension RangeFromOfStepExtension<T extends Step<T>> on RangeFrom<T> {
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
   Iterable<T> get iter => const IntRangeFrom(0).map(start.stepBy);
+
+  T operator [](int index) => start.stepBy(index);
 }
 
 /// A range ending with an exclusive bound and without a start bound.

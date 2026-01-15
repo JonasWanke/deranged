@@ -181,8 +181,6 @@ class IntProgression extends Progression<int> with Iterable<int> {
     return start + index * step;
   }
 
-  int operator [](int index) => elementAt(index);
-
   @override
   bool contains(Object? element) {
     if (element is! int) return false;
