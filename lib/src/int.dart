@@ -56,6 +56,9 @@ class IntRange extends RangeInclusive<num>
   }
 
   @override
+  int operator [](int index) => elementAt(index);
+
+  @override
   bool contains(Object? element) =>
       element is int && start <= element && element <= endInclusive;
 
@@ -84,6 +87,8 @@ class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
     }
     return start + index;
   }
+
+  int operator [](int index) => elementAt(index);
 
   @override
   bool contains(Object? element) => element is int && start <= element;
@@ -175,6 +180,8 @@ class IntProgression extends Progression<int> with Iterable<int> {
     }
     return start + index * step;
   }
+
+  int operator [](int index) => elementAt(index);
 
   @override
   bool contains(Object? element) {
