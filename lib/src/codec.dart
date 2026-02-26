@@ -30,6 +30,31 @@ class RangeAsMapCodec<C extends Comparable<C>>
   }
 }
 
+/// Encodes a [RangeInclusive] as a map with "start" and "end" keys.
+class RangeInclusiveAsMapCodec<C extends Comparable<C>>
+    extends _CodecAndJsonConverter<RangeInclusive<C>, Map<String, dynamic>> {
+  const RangeInclusiveAsMapCodec({this.fromJsonC});
+
+  final C Function(dynamic json)? fromJsonC;
+
+  @override
+  Map<String, dynamic> encode(RangeInclusive<C> input) {
+    return {
+      'start': input.start,
+      'end': input.end,
+    };
+  }
+
+  @override
+  RangeInclusive<C> decode(Map<String, dynamic> encoded) {
+    final startRaw = encoded['start'];
+    final start = fromJsonC != null ? fromJsonC!(startRaw) : startRaw as C;
+    final endRaw = encoded['end'];
+    final end = fromJsonC != null ? fromJsonC!(endRaw) : endRaw as C;
+    return RangeInclusive(start, end);
+  }
+}
+
 @immutable
 abstract class _CodecAndJsonConverter<S extends Object, T> extends Codec<S, T>
     implements JsonConverter<S, T> {
