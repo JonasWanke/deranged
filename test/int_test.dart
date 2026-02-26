@@ -10,7 +10,7 @@ void main() {
       final range = IntRange(start, start - 1);
 
       expect(range.isEmpty, true);
-      expect(range.endInclusive, start - 1);
+      expect(range.end, start - 1);
       expect(range.endExclusive, start);
       expect(range.toList(), <int>[]);
       expect(range.length, 0);
@@ -26,7 +26,7 @@ void main() {
       final range = IntRange(start, start);
 
       expect(range.isEmpty, false);
-      expect(range.endInclusive, start);
+      expect(range.end, start);
       expect(range.endExclusive, start + 1);
       expect(range.toList(), [start]);
       expect(range.length, 1);
@@ -43,7 +43,7 @@ void main() {
       final range = IntRange(start, start + 1);
 
       expect(range.isEmpty, false);
-      expect(range.endInclusive, start + 1);
+      expect(range.end, start + 1);
       expect(range.endExclusive, start + 2);
       expect(range.toList(), [start, start + 1]);
       expect(range.length, 2);

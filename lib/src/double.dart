@@ -26,19 +26,18 @@ class DoubleRange extends Range<num> {
 }
 
 class DoubleRangeInclusive extends RangeInclusive<num> {
-  const DoubleRangeInclusive(super.start, super.endInclusive);
+  const DoubleRangeInclusive(super.start, super.end);
 
   @override
   double get start => super.start as double;
   @override
-  double get endInclusive => super.endInclusive as double;
+  double get end => super.end as double;
 
   @override
-  bool contains(num value) =>
-      value is double && start <= value && value <= endInclusive;
+  bool contains(num value) => value is double && start <= value && value <= end;
 
   @override
-  String toString() => 'DoubleRangeInclusive($start..=$endInclusive)';
+  String toString() => 'DoubleRangeInclusive($start..=$end)';
 }
 
 class DoubleRangeFrom extends RangeFrom<num> {
@@ -69,17 +68,17 @@ class DoubleRangeTo extends RangeTo<num> {
 }
 
 class DoubleRangeToInclusive extends RangeToInclusive<num> {
-  const DoubleRangeToInclusive(super.endInclusive);
+  const DoubleRangeToInclusive(super.end);
 
-  double get endExclusive => endInclusive - 1;
+  double get endExclusive => end - 1;
   @override
-  double get endInclusive => super.endInclusive as double;
-
-  @override
-  bool contains(Object? value) => value is double && value <= endInclusive;
+  double get end => super.end as double;
 
   @override
-  String toString() => 'DoubleRangeToInclusive(..=$endInclusive)';
+  bool contains(Object? value) => value is double && value <= end;
+
+  @override
+  String toString() => 'DoubleRangeToInclusive(..=$end)';
 }
 
 extension DoubleExtension on double {

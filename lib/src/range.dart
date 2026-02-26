@@ -237,34 +237,33 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
 /// - convert this range to a [Range] (with an exclusive end bound) using the
 ///  [RangeInclusiveOfStepExtension.exclusive] extension getter
 class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
-  const RangeInclusive(this.start, this.endInclusive);
+  const RangeInclusive(this.start, this.end);
   const RangeInclusive.single(C value)
       : start = value,
-        endInclusive = value;
+        end = value;
 
   final C start;
-  final C endInclusive;
+  final C end;
 
   @override
   InclusiveBound<C> get startBound => InclusiveBound(start);
   @override
-  InclusiveBound<C> get endBound => InclusiveBound(endInclusive);
+  InclusiveBound<C> get endBound => InclusiveBound(end);
 
   @override
-  String toString() => 'RangeInclusive($start..=$endInclusive)';
+  String toString() => 'RangeInclusive($start..=$end)';
 }
 
 extension RangeInclusiveOfStepExtension<T extends Step<T>>
     on RangeInclusive<T> {
-  T get endExclusive => endInclusive.stepBy(1);
+  T get endExclusive => end.stepBy(1);
 
   /// Returns a [Range] representing a range with the same values.
   Range<T> get exclusive => Range(start, endExclusive);
 
-  /// Returns a [StepProgression] with this range's [start] and [endInclusive],
+  /// Returns a [StepProgression] with this range's [start] and [end],
   /// as well as the given [step].
-  StepProgression<T> stepBy(int step) =>
-      StepProgression(start, endInclusive, step);
+  StepProgression<T> stepBy(int step) => StepProgression(start, end, step);
 
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
@@ -274,9 +273,9 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   ///
   /// For example, the length of a [RangeInclusive] from 0 to 2 is 3 because it
   /// contains the three elements 0, 1, and 2.
-  int get length => start.stepsUntil(endInclusive) + 1;
+  int get length => start.stepsUntil(end) + 1;
 
-  StepProgression<T> get reverse => StepProgression(endInclusive, start, -1);
+  StepProgression<T> get reverse => StepProgression(end, start, -1);
 
   T operator [](int index) {
     if (index < 0 || index >= length) {
@@ -331,17 +330,17 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
 
 /// A range ending with an inclusive bound and without a start bound.
 class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
-  const RangeToInclusive(this.endInclusive);
+  const RangeToInclusive(this.end);
 
-  final C endInclusive;
+  final C end;
 
   @override
   UnboundedBound<C> get startBound => const UnboundedBound();
   @override
-  InclusiveBound<C> get endBound => InclusiveBound(endInclusive);
+  InclusiveBound<C> get endBound => InclusiveBound(end);
 
   @override
-  String toString() => 'RangeToInclusive(..=$endInclusive)';
+  String toString() => 'RangeToInclusive(..=$end)';
 }
 
 extension ComparableExtension<C extends Comparable<C>> on C {

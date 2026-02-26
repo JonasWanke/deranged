@@ -26,14 +26,14 @@ class IntRange extends RangeInclusive<num>
   @override
   int get start => super.start as int;
   @override
-  int get endInclusive => super.endInclusive as int;
-  int get endExclusive => endInclusive + 1;
+  int get end => super.end as int;
+  int get endExclusive => end + 1;
   @override
   int get step => 1;
 
-  /// Returns an [IntProgression] with this range's [start] and [endInclusive],
+  /// Returns an [IntProgression] with this range's [start] and [end],
   /// as well as the given [step].
-  IntProgression stepBy(int step) => IntProgression(start, endInclusive, step);
+  IntProgression stepBy(int step) => IntProgression(start, end, step);
 
   @override
   Iterator<int> get iterator =>
@@ -41,7 +41,7 @@ class IntRange extends RangeInclusive<num>
   @override
   int get length => endExclusive - start;
   @override
-  int get last => isEmpty ? throw StateError('No element') : endInclusive;
+  int get last => isEmpty ? throw StateError('No element') : end;
   @override
   int elementAt(int index) {
     if (index < 0 || index >= length) {
@@ -60,10 +60,10 @@ class IntRange extends RangeInclusive<num>
 
   @override
   bool contains(Object? element) =>
-      element is int && start <= element && element <= endInclusive;
+      element is int && start <= element && element <= end;
 
   @override
-  String toString() => 'IntRange($start..=$endInclusive)';
+  String toString() => 'IntRange($start..=$end)';
 }
 
 /// A range of [int] starting from an inclusive bound and without an end bound.
