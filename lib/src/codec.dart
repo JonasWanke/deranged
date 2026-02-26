@@ -8,50 +8,83 @@ import '../deranged.dart';
 /// Encodes a [Range] as a map with "start" and "end" keys.
 class RangeAsMapCodec<C extends Comparable<C>>
     extends _CodecAndJsonConverter<Range<C>, Map<String, dynamic>> {
-  const RangeAsMapCodec({this.fromJsonC});
+  const RangeAsMapCodec({this.innerCodec, this.encodeInner, this.decodeInner})
+      : assert(
+          innerCodec == null || (encodeInner == null && decodeInner == null),
+          'Cannot provide both innerCodec and encodeInner/decodeInner.',
+        );
 
-  final C Function(dynamic json)? fromJsonC;
-
-  @override
-  Map<String, dynamic> encode(Range<C> input) {
-    return {
-      'start': input.start,
-      'end': input.end,
-    };
-  }
+  final Codec<C, dynamic>? innerCodec;
+  final dynamic Function(C)? encodeInner;
+  final C Function(dynamic)? decodeInner;
 
   @override
-  Range<C> decode(Map<String, dynamic> encoded) {
-    final startRaw = encoded['start'];
-    final start = fromJsonC != null ? fromJsonC!(startRaw) : startRaw as C;
-    final endRaw = encoded['end'];
-    final end = fromJsonC != null ? fromJsonC!(endRaw) : endRaw as C;
-    return Range(start, end);
-  }
+  Map<String, dynamic> encode(Range<C> input) => {
+        'start': _encode(input.start, innerCodec, encodeInner),
+        'end': _encode(input.end, innerCodec, encodeInner),
+      };
+
+  @override
+  Range<C> decode(Map<String, dynamic> encoded) => Range(
+        _decode(encoded['start'], innerCodec, decodeInner),
+        _decode(encoded['end'], innerCodec, decodeInner),
+      );
 }
 
 /// Encodes a [RangeInclusive] as a map with "start" and "end" keys.
 class RangeInclusiveAsMapCodec<C extends Comparable<C>>
     extends _CodecAndJsonConverter<RangeInclusive<C>, Map<String, dynamic>> {
-  const RangeInclusiveAsMapCodec({this.fromJsonC});
+  const RangeInclusiveAsMapCodec({
+    this.innerCodec,
+    this.encodeInner,
+    this.decodeInner,
+  }) : assert(
+          innerCodec == null || (encodeInner == null && decodeInner == null),
+          'Cannot provide both innerCodec and encodeInner/decodeInner.',
+        );
 
-  final C Function(dynamic json)? fromJsonC;
+  final Codec<C, dynamic>? innerCodec;
+  final dynamic Function(C)? encodeInner;
+  final C Function(dynamic)? decodeInner;
 
   @override
-  Map<String, dynamic> encode(RangeInclusive<C> input) {
-    return {
-      'start': input.start,
-      'end': input.end,
-    };
+  Map<String, dynamic> encode(RangeInclusive<C> input) => {
+        'start': _encode(input.start, innerCodec, encodeInner),
+        'end': _encode(input.end, innerCodec, encodeInner),
+      };
+
+  @override
+  RangeInclusive<C> decode(Map<String, dynamic> encoded) => RangeInclusive(
+        _decode(encoded['start'], innerCodec, decodeInner),
+        _decode(encoded['end'], innerCodec, decodeInner),
+      );
+}
+
+dynamic _encode<C>(
+  C input,
+  Codec<C, dynamic>? innerCodec,
+  dynamic Function(C)? encodeInner,
+) {
+  if (innerCodec case final innerCodec?) {
+    return innerCodec.encode(input);
+  } else if (encodeInner case final encodeInner?) {
+    return encodeInner(input);
+  } else {
+    return input;
   }
+}
 
-  @override
-  RangeInclusive<C> decode(Map<String, dynamic> encoded) {
-    final startRaw = encoded['start'];
-    final start = fromJsonC != null ? fromJsonC!(startRaw) : startRaw as C;
-    final endRaw = encoded['end'];
-    final end = fromJsonC != null ? fromJsonC!(endRaw) : endRaw as C;
-    return RangeInclusive(start, end);
+C _decode<C>(
+  dynamic encoded,
+  Codec<C, dynamic>? innerCodec,
+  C Function(dynamic)? decodeInner,
+) {
+  if (innerCodec case final innerCodec?) {
+    return innerCodec.decode(encoded);
+  } else if (decodeInner case final decodeInner?) {
+    return decodeInner(encoded);
+  } else {
+    return encoded as C;
   }
 }
 
