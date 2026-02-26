@@ -9,10 +9,10 @@ import '../deranged.dart';
 class RangeAsMapCodec<C extends Comparable<C>>
     extends _CodecAndJsonConverter<Range<C>, Map<String, dynamic>> {
   const RangeAsMapCodec({this.innerCodec, this.encodeInner, this.decodeInner})
-      : assert(
-          innerCodec == null || (encodeInner == null && decodeInner == null),
-          'Cannot provide both innerCodec and encodeInner/decodeInner.',
-        );
+    : assert(
+        innerCodec == null || (encodeInner == null && decodeInner == null),
+        'Cannot provide both innerCodec and encodeInner/decodeInner.',
+      );
 
   final Codec<C, dynamic>? innerCodec;
   final dynamic Function(C)? encodeInner;
@@ -20,15 +20,15 @@ class RangeAsMapCodec<C extends Comparable<C>>
 
   @override
   Map<String, dynamic> encode(Range<C> input) => {
-        'start': _encode(input.start, innerCodec, encodeInner),
-        'end': _encode(input.end, innerCodec, encodeInner),
-      };
+    'start': _encode(input.start, innerCodec, encodeInner),
+    'end': _encode(input.end, innerCodec, encodeInner),
+  };
 
   @override
   Range<C> decode(Map<String, dynamic> encoded) => Range(
-        _decode(encoded['start'], innerCodec, decodeInner),
-        _decode(encoded['end'], innerCodec, decodeInner),
-      );
+    _decode(encoded['start'], innerCodec, decodeInner),
+    _decode(encoded['end'], innerCodec, decodeInner),
+  );
 }
 
 /// Encodes a [RangeInclusive] as a map with "start" and "end" keys.
@@ -39,9 +39,9 @@ class RangeInclusiveAsMapCodec<C extends Comparable<C>>
     this.encodeInner,
     this.decodeInner,
   }) : assert(
-          innerCodec == null || (encodeInner == null && decodeInner == null),
-          'Cannot provide both innerCodec and encodeInner/decodeInner.',
-        );
+         innerCodec == null || (encodeInner == null && decodeInner == null),
+         'Cannot provide both innerCodec and encodeInner/decodeInner.',
+       );
 
   final Codec<C, dynamic>? innerCodec;
   final dynamic Function(C)? encodeInner;
@@ -49,15 +49,15 @@ class RangeInclusiveAsMapCodec<C extends Comparable<C>>
 
   @override
   Map<String, dynamic> encode(RangeInclusive<C> input) => {
-        'start': _encode(input.start, innerCodec, encodeInner),
-        'end': _encode(input.end, innerCodec, encodeInner),
-      };
+    'start': _encode(input.start, innerCodec, encodeInner),
+    'end': _encode(input.end, innerCodec, encodeInner),
+  };
 
   @override
   RangeInclusive<C> decode(Map<String, dynamic> encoded) => RangeInclusive(
-        _decode(encoded['start'], innerCodec, decodeInner),
-        _decode(encoded['end'], innerCodec, decodeInner),
-      );
+    _decode(encoded['start'], innerCodec, decodeInner),
+    _decode(encoded['end'], innerCodec, decodeInner),
+  );
 }
 
 dynamic _encode<C>(

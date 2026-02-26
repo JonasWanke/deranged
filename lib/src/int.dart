@@ -16,8 +16,7 @@ class IntRangeFull extends RangeFull<num> {
 
 /// A half-open range of [int]: start is included, end is excluded.
 class IntRange extends Range<num>
-    with
-        Iterable<int>
+    with Iterable<int>
     implements
         // ignore: avoid_implementing_value_types
         IntProgression {
