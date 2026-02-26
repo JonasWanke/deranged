@@ -22,7 +22,7 @@ class DoubleRange extends Range<num> {
   bool contains(num value) => value is double && start <= value && value <= end;
 
   @override
-  String toString() => 'DoubleRange($start..$end)';
+  String toString() => 'DoubleRange($start..<$end)';
 }
 
 class DoubleRangeInclusive extends RangeInclusive<num> {

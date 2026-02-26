@@ -5,8 +5,8 @@ import 'package:meta/meta.dart';
 import 'int.dart';
 import 'range.dart';
 
-/// A progression of values of type [T], defined by a [start], [end],
-/// and [step].
+/// A progression of values of type [T], defined by a [start], [end]
+/// (exclusive), and [step].
 ///
 /// {@template deranged.Progression.empty}
 /// A progression is empty if the [start] is greater than the [end]
@@ -38,7 +38,7 @@ abstract class Progression<T> implements Iterable<T> {
   int get hashCode => Object.hash(start, end, step);
 
   @override
-  String toString() => 'Progression($start..=$end stepBy $step)';
+  String toString() => 'Progression($start..<$end stepBy $step)';
 }
 
 /// Objects that have successor and predecessor operations.

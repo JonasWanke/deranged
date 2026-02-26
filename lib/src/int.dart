@@ -14,20 +14,20 @@ class IntRangeFull extends RangeFull<num> {
   String toString() => 'IntRangeFull(..)';
 }
 
-// A closed range of [int]: both start and end are included.
-class IntRange extends RangeInclusive<num>
+/// A half-open range of [int]: start is included, end is excluded.
+class IntRange extends Range<num>
     with
         Iterable<int>
     implements
         // ignore: avoid_implementing_value_types
         IntProgression {
-  const IntRange(super.start, super.endInclusive);
+  const IntRange(super.start, super.end);
 
   @override
   int get start => super.start as int;
   @override
   int get end => super.end as int;
-  int get endExclusive => end + 1;
+  int get endInclusive => end - 1;
   @override
   int get step => 1;
 
@@ -39,9 +39,9 @@ class IntRange extends RangeInclusive<num>
   Iterator<int> get iterator =>
       Iterable.generate(length, (i) => start + i).iterator;
   @override
-  int get length => endExclusive - start;
+  int get length => end - start;
   @override
-  int get last => isEmpty ? throw StateError('No element') : end;
+  int get last => isEmpty ? throw StateError('No element') : endInclusive;
   @override
   int elementAt(int index) {
     if (index < 0 || index >= length) {
@@ -60,10 +60,10 @@ class IntRange extends RangeInclusive<num>
 
   @override
   bool contains(Object? element) =>
-      element is int && start <= element && element <= end;
+      element is int && start <= element && element < end;
 
   @override
-  String toString() => 'IntRange($start..=$end)';
+  String toString() => 'IntRange($start..<$end)';
 }
 
 /// A range of [int] starting from an inclusive bound and without an end bound.
@@ -112,33 +112,33 @@ class _IntRangeFromIterator implements Iterator<int> {
   }
 }
 
-/// A range of [int] ending with an inclusive bound and without a start bound.
-class IntRangeTo extends RangeToInclusive<num> {
-  const IntRangeTo(super.endInclusive);
+/// A range of [int] ending with an exclusive bound and without a start bound.
+class IntRangeTo extends RangeTo<num> {
+  const IntRangeTo(super.end);
 
-  int get endExclusive => endInclusive - 1;
+  int get endInclusive => end - 1;
   @override
-  int get endInclusive => super.endInclusive as int;
-
-  @override
-  bool contains(Object? value) => value is int && value <= endInclusive;
+  int get end => super.end as int;
 
   @override
-  String toString() => 'IntRangeTo(..=$endInclusive)';
+  bool contains(Object? value) => value is int && value <= end;
+
+  @override
+  String toString() => 'IntRangeTo(..<$end)';
 }
 
 extension IntExtension on int {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
-  IntRange rangeUntil(int other) => IntRange(this, other - 1);
+  IntRange rangeUntil(int other) => IntRange(this, other);
 
   /// Creates a range from `this` (inclusive) to [other] (inclusive).
-  IntRange rangeTo(int other) => IntRange(this, other);
+  IntRange rangeTo(int other) => IntRange(this, other + 1);
 
   /// Creates a range from `this` (inclusive) to `this + length` (exclusive).
   IntRange rangeWithLength(int length) => IntRange(this, this + length);
 }
 
-/// A [Progression] of [int] values, defined by a [start], [endInclusive], and
+/// A [Progression] of [int] values, defined by a [start], [end], and
 /// [step].
 ///
 /// {@macro deranged.Progression.empty}
@@ -148,21 +148,18 @@ extension IntExtension on int {
 /// - [Progression], the base class for progressions.
 /// - [StepProgression], a progression of values that implement [Step].
 class IntProgression extends Progression<int> with Iterable<int> {
-  const IntProgression(super.start, super.endInclusive, super.step)
-      : assert(step != 0);
+  const IntProgression(super.start, super.end, super.step) : assert(step != 0);
 
   @override
   Iterator<int> get iterator =>
       Iterable.generate(length, (i) => start + i * step).iterator;
   @override
-  int get length => max(0, (endInclusive + step - start) ~/ step);
+  int get length => max(0, (end + step - start) ~/ step);
   @override
   int get last {
     if (isEmpty) throw StateError('No element');
 
-    return step > 0
-        ? endInclusive - (endInclusive - start) % step
-        : endInclusive + (start - endInclusive) % -step;
+    return step > 0 ? end - (end - start) % step : end + (start - end) % -step;
   }
 
   @override
@@ -181,11 +178,11 @@ class IntProgression extends Progression<int> with Iterable<int> {
   @override
   bool contains(Object? element) {
     if (element is! int) return false;
-    if (step > 0 && (element < start || element > endInclusive)) return false;
-    if (step < 0 && (element < endInclusive || element > start)) return false;
+    if (step > 0 && (element < start || element > end)) return false;
+    if (step < 0 && (element < end || element > start)) return false;
     return (element - start) % step == 0;
   }
 
   @override
-  String toString() => 'IntProgression($start..=$endInclusive stepBy $step)';
+  String toString() => 'IntProgression($start..=$end stepBy $step)';
 }

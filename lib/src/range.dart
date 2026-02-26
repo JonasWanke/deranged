@@ -189,7 +189,7 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
 
   @override
-  String toString() => 'Range($start..$end)';
+  String toString() => 'Range($start..<$end)';
 }
 
 extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
@@ -325,7 +325,7 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
 
   @override
-  String toString() => 'RangeTo(..$end)';
+  String toString() => 'RangeTo(..<$end)';
 }
 
 /// A range ending with an inclusive bound and without a start bound.
