@@ -283,8 +283,11 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   /// Note that this method does not check whether the two ranges actually
   /// intersect. For example, the union of the ranges 0..=2 and 4..=6 is the
   /// range 0..=6, even though the two ranges have no values in common.
-  RangeInclusive<C> operator |(RangeInclusive<C> other) =>
-      RangeInclusive(_min(start, other.start), _max(end, other.end));
+  RangeInclusive<C> operator |(RangeInclusive<C>? other) {
+    return other == null
+        ? this
+        : RangeInclusive(_min(start, other.start), _max(end, other.end));
+  }
 
   /// Intersection of this and [other], i.e., the largest range containing only
   /// values of both ranges.
