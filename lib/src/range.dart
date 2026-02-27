@@ -271,6 +271,10 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   @override
   InclusiveBound<C> get endBound => InclusiveBound(end);
 
+  /// Returns whether this range contains only a single value, i.e., its start
+  /// and end are equal.
+  bool get isSingle => start == end;
+
   @override
   String toString() => 'RangeInclusive($start..=$end)';
 }
