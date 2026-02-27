@@ -41,6 +41,25 @@ abstract class RangeBounds<C extends Comparable<C>> {
   /// The end bound of this range.
   Bound<C> get endBound;
 
+  /// Returns whether this range is empty, i.e., contains no values.
+  bool get isEmpty {
+    return switch ((startBound, endBound)) {
+      (UnboundedBound(), _) || (_, UnboundedBound()) => false,
+      (InclusiveBound(value: final start), InclusiveBound(value: final end)) =>
+        start.compareTo(end) > 0,
+      (
+        InclusiveBound(value: final start) ||
+            ExclusiveBound(value: final start),
+        InclusiveBound(value: final end) || ExclusiveBound(value: final end),
+      ) =>
+        start.compareTo(end) >= 0,
+    };
+  }
+
+  /// Returns whether this range is not empty, i.e., contains at least one
+  /// value.
+  bool get isNotEmpty => !isEmpty;
+
   /// Returns whether [value] is contained in this range.
   bool contains(C value) {
     final startMatches = switch (startBound) {
