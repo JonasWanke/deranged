@@ -275,6 +275,39 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   /// and end are equal.
   bool get isSingle => start == end;
 
+  /// Union of this and [other], i.e., the smallest range containing all values
+  /// of both ranges.
+  ///
+  /// For example, the union of the ranges 0..=2 and 1..=3 is the range 0..=3.
+  ///
+  /// Note that this method does not check whether the two ranges actually
+  /// intersect. For example, the union of the ranges 0..=2 and 4..=6 is the
+  /// range 0..=6, even though the two ranges have no values in common.
+  RangeInclusive<C> operator |(RangeInclusive<C> other) =>
+      RangeInclusive(_min(start, other.start), _max(end, other.end));
+
+  /// Intersection of this and [other], i.e., the largest range containing only
+  /// values of both ranges.
+  ///
+  /// For example, the intersection of the ranges 0..=2 and 1..=3 is the range
+  /// 1..=2.
+  ///
+  /// If the two ranges have no values in common, `null` is returned. For
+  /// example, the intersection of the ranges 0..=2 and 3..=5 is `null`.
+  RangeInclusive<C>? operator &(RangeInclusive<C> other) {
+    final result = RangeInclusive(
+      _max(start, other.start),
+      _min(end, other.end),
+    );
+    if (result.isEmpty) return null;
+    return result;
+  }
+
+  static C _min<C extends Comparable<C>>(C a, C b) =>
+      a.compareTo(b) <= 0 ? a : b;
+  static C _max<C extends Comparable<C>>(C a, C b) =>
+      a.compareTo(b) >= 0 ? a : b;
+
   @override
   String toString() => 'RangeInclusive($start..=$end)';
 }
