@@ -351,6 +351,28 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   }
 }
 
+extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
+    on Iterable<RangeInclusive<C>> {
+  /// The union of all contained [RangeInclusive]s.
+  ///
+  /// See [RangeInclusive.&] for details.
+  RangeInclusive<C>? get union => reduce((value, element) => value | element);
+
+  /// The union of all contained [RangeInclusive]s.
+  ///
+  /// See [RangeInclusive.|] for details.
+  RangeInclusive<C>? get intersection {
+    var result = firstOrNull;
+    if (result == null) return null;
+
+    for (final range in skip(1)) {
+      result = result! & range;
+      if (result == null) return null;
+    }
+    return result;
+  }
+}
+
 /// A range starting from an inclusive bound and without an end bound.
 class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeFrom(this.start);
