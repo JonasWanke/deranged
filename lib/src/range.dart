@@ -1,9 +1,10 @@
+import 'dart:convert';
+
 import 'package:meta/meta.dart';
 
-import 'bound.dart';
-import 'double.dart';
-import 'int.dart';
-import 'progression.dart';
+import '../deranged.dart';
+
+// RangeBounds
 
 /// Base class for [Range] & co., providing common methods.
 ///
@@ -166,6 +167,8 @@ abstract class RangeBounds<C extends Comparable<C>> {
   String toString() => 'RangeBounds($startBound, $endBound)';
 }
 
+// AnyRange
+
 /// A range supporting all possible [Bound]s.
 class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
   const AnyRange(this.startBound, this.endBound);
@@ -179,6 +182,8 @@ class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'AnyRange($startBound, $endBound)';
 }
 
+// RangeFull
+
 /// An unbounded range.
 class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeFull();
@@ -191,6 +196,8 @@ class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
   @override
   String toString() => 'RangeFull(..)';
 }
+
+// Range
 
 /// A half-open range: start is included, end is excluded.
 ///
@@ -250,6 +257,37 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
     return start.stepBy(index);
   }
 }
+
+/// Encodes a [RangeInclusive] as a map with "start" and "end" keys.
+class RangeInclusiveAsMapCodec<C extends Comparable<C>>
+    extends CodecAndJsonConverter<RangeInclusive<C>, Map<String, dynamic>> {
+  const RangeInclusiveAsMapCodec({
+    this.innerCodec,
+    this.encodeInner,
+    this.decodeInner,
+  }) : assert(
+         innerCodec == null || (encodeInner == null && decodeInner == null),
+         'Cannot provide both innerCodec and encodeInner/decodeInner.',
+       );
+
+  final Codec<C, dynamic>? innerCodec;
+  final dynamic Function(C)? encodeInner;
+  final C Function(dynamic)? decodeInner;
+
+  @override
+  Map<String, dynamic> encode(RangeInclusive<C> input) => {
+    'start': _encode(input.start, innerCodec, encodeInner),
+    'end': _encode(input.end, innerCodec, encodeInner),
+  };
+
+  @override
+  RangeInclusive<C> decode(Map<String, dynamic> encoded) => RangeInclusive(
+    _decode(encoded['start'], innerCodec, decodeInner),
+    _decode(encoded['end'], innerCodec, decodeInner),
+  );
+}
+
+// RangeInclusive
 
 /// A closed range: both start and end are included.
 ///
@@ -373,6 +411,37 @@ extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
   }
 }
 
+/// Encodes a [RangeInclusive] as a map with "start" and "end" keys.
+class RangeInclusiveAsMapCodec<C extends Comparable<C>>
+    extends CodecAndJsonConverter<RangeInclusive<C>, Map<String, dynamic>> {
+  const RangeInclusiveAsMapCodec({
+    this.innerCodec,
+    this.encodeInner,
+    this.decodeInner,
+  }) : assert(
+         innerCodec == null || (encodeInner == null && decodeInner == null),
+         'Cannot provide both innerCodec and encodeInner/decodeInner.',
+       );
+
+  final Codec<C, dynamic>? innerCodec;
+  final dynamic Function(C)? encodeInner;
+  final C Function(dynamic)? decodeInner;
+
+  @override
+  Map<String, dynamic> encode(RangeInclusive<C> input) => {
+    'start': _encode(input.start, innerCodec, encodeInner),
+    'end': _encode(input.end, innerCodec, encodeInner),
+  };
+
+  @override
+  RangeInclusive<C> decode(Map<String, dynamic> encoded) => RangeInclusive(
+    _decode(encoded['start'], innerCodec, decodeInner),
+    _decode(encoded['end'], innerCodec, decodeInner),
+  );
+}
+
+// RangeFrom
+
 /// A range starting from an inclusive bound and without an end bound.
 class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeFrom(this.start);
@@ -396,6 +465,8 @@ extension RangeFromOfStepExtension<T extends Step<T>> on RangeFrom<T> {
   T operator [](int index) => start.stepBy(index);
 }
 
+// RangeTo
+
 /// A range ending with an exclusive bound and without a start bound.
 class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeTo(this.end);
@@ -410,6 +481,8 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   @override
   String toString() => 'RangeTo(..<$end)';
 }
+
+// RangeToInclusive
 
 /// A range ending with an inclusive bound and without a start bound.
 class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
@@ -426,10 +499,40 @@ class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeToInclusive(..=$end)';
 }
 
+// Utils
+
 extension ComparableExtension<C extends Comparable<C>> on C {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   Range<C> rangeUntil(C other) => Range(this, other);
 
   /// Creates a range from `this` (inclusive) to [other] (inclusive).
   RangeInclusive<C> rangeTo(C other) => RangeInclusive(this, other);
+}
+
+dynamic _encode<C>(
+  C input,
+  Codec<C, dynamic>? innerCodec,
+  dynamic Function(C)? encodeInner,
+) {
+  if (innerCodec case final innerCodec?) {
+    return innerCodec.encode(input);
+  } else if (encodeInner case final encodeInner?) {
+    return encodeInner(input);
+  } else {
+    return input;
+  }
+}
+
+C _decode<C>(
+  dynamic encoded,
+  Codec<C, dynamic>? innerCodec,
+  C Function(dynamic)? decodeInner,
+) {
+  if (innerCodec case final innerCodec?) {
+    return innerCodec.decode(encoded);
+  } else if (decodeInner case final decodeInner?) {
+    return decodeInner(encoded);
+  } else {
+    return encoded as C;
+  }
 }
