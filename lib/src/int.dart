@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'codec.dart';
 import 'progression.dart';
 import 'range.dart';
 
@@ -63,6 +64,21 @@ class IntRange extends Range<num>
 
   @override
   String toString() => 'IntRange($start..<$end)';
+}
+
+/// Encodes an [IntRange] as a map with "start" and "end" keys.
+class IntRangeAsMapCodec
+    extends CodecAndJsonConverter<IntRange, Map<String, dynamic>> {
+  const IntRangeAsMapCodec();
+
+  @override
+  Map<String, dynamic> encode(IntRange input) => {
+    'start': input.start,
+    'end': input.end,
+  };
+  @override
+  IntRange decode(Map<String, dynamic> encoded) =>
+      IntRange(encoded['start'] as int, encoded['end'] as int);
 }
 
 /// A range of [int] starting from an inclusive bound and without an end bound.

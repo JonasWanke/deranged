@@ -1,3 +1,4 @@
+import 'codec.dart';
 import 'range.dart';
 
 class DoubleRangeFull extends RangeFull<num> {
@@ -23,6 +24,23 @@ class DoubleRange extends Range<num> {
 
   @override
   String toString() => 'DoubleRange($start..<$end)';
+}
+
+/// Encodes an [DoubleRange] as a map with "start" and "end" keys.
+class DoubleRangeAsMapCodec
+    extends CodecAndJsonConverter<DoubleRange, Map<String, dynamic>> {
+  const DoubleRangeAsMapCodec();
+
+  @override
+  Map<String, dynamic> encode(DoubleRange input) => {
+    'start': input.start,
+    'end': input.end,
+  };
+  @override
+  DoubleRange decode(Map<String, dynamic> encoded) => DoubleRange(
+    (encoded['start'] as num).toDouble(),
+    (encoded['end'] as num).toDouble(),
+  );
 }
 
 class DoubleRangeInclusive extends RangeInclusive<num> {
