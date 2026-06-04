@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 
 import '../deranged.dart';
+import 'codec.dart';
 
 // RangeBounds
 
@@ -258,30 +259,27 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   }
 }
 
-/// Encodes a [RangeInclusive] as a map with "start" and "end" keys.
-class RangeInclusiveAsMapCodec<C extends Comparable<C>>
-    extends CodecAndJsonConverter<RangeInclusive<C>, Map<String, dynamic>> {
-  const RangeInclusiveAsMapCodec({
-    this.innerCodec,
-    this.encodeInner,
-    this.decodeInner,
-  }) : assert(
-         innerCodec == null || (encodeInner == null && decodeInner == null),
-         'Cannot provide both innerCodec and encodeInner/decodeInner.',
-       );
+/// Encodes a [Range] as a map with "start" and "end" keys.
+class RangeAsMapCodec<C extends Comparable<C>>
+    extends CodecAndJsonConverter<Range<C>, Map<String, dynamic>> {
+  const RangeAsMapCodec({this.innerCodec, this.encodeInner, this.decodeInner})
+    : assert(
+        innerCodec == null || (encodeInner == null && decodeInner == null),
+        'Cannot provide both innerCodec and encodeInner/decodeInner.',
+      );
 
   final Codec<C, dynamic>? innerCodec;
   final dynamic Function(C)? encodeInner;
   final C Function(dynamic)? decodeInner;
 
   @override
-  Map<String, dynamic> encode(RangeInclusive<C> input) => {
+  Map<String, dynamic> encode(Range<C> input) => {
     'start': _encode(input.start, innerCodec, encodeInner),
     'end': _encode(input.end, innerCodec, encodeInner),
   };
 
   @override
-  RangeInclusive<C> decode(Map<String, dynamic> encoded) => RangeInclusive(
+  Range<C> decode(Map<String, dynamic> encoded) => Range(
     _decode(encoded['start'], innerCodec, decodeInner),
     _decode(encoded['end'], innerCodec, decodeInner),
   );
