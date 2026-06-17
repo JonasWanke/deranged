@@ -40,41 +40,6 @@ abstract class Progression<T> implements Iterable<T> {
   String toString() => 'Progression($start..<$end stepBy $step)';
 }
 
-/// Objects that have successor and predecessor operations.
-@immutable
-abstract interface class Step<C extends Step<C>> implements Comparable<C> {
-  /// Returns the result of moving [count] steps forward from this.
-  ///
-  /// - If [count] is positive, the result is after this.
-  /// - If [count] is zero, the result is this.
-  /// - If [count] is negative, the result is before this.
-  ///
-  /// For example, if this were implemented for `int`:
-  /// `2.stepBy(3) = 2 + 3 = 5`.
-  C stepBy(int count);
-
-  /// The number of steps between this and [other].
-  ///
-  /// - If [other] is after this, the result is positive.
-  /// - If [other] is the same as this, the result is zero.
-  /// - If [other] is before this, the result is negative.
-  ///
-  /// For example, if this were implemented for `int`:
-  /// `2.stepsUntil(5) = 5 - 2 = 3`.
-  int stepsUntil(C other);
-}
-
-extension StepExtension<C extends Step<C>> on C {
-  /// Creates a range from `this` (inclusive) to `this.stepBy(length)`
-  /// (exclusive).
-  Range<C> rangeUntilWithLength(int length) => Range(this, stepBy(length));
-
-  /// Creates a range from `this` (inclusive) to `this.stepBy(length)`
-  /// (inclusive).
-  RangeInclusive<C> rangeToWithLength(int length) =>
-      RangeInclusive(this, stepBy(length));
-}
-
 /// A [Progression] of values of type [T], defined by a [start], [end],
 /// and [step].
 ///
@@ -95,7 +60,7 @@ class StepProgression<T extends Step<T>> extends Progression<T>
 
   @override
   Iterator<T> get iterator =>
-      Iterable.generate(length, (i) => start.stepBy(i * step)).iterator;
+      Iterable.generate(length, (i) => start.stepBy(i * step)!).iterator;
   @override
   int get length => max(0, (start.stepsUntil(end) + step) ~/ step);
   @override
@@ -106,7 +71,7 @@ class StepProgression<T extends Step<T>> extends Progression<T>
       step > 0
           ? -(start.stepsUntil(end) % step)
           : end.stepsUntil(start) % -step,
-    );
+    )!;
   }
 
   @override
@@ -119,7 +84,7 @@ class StepProgression<T extends Step<T>> extends Progression<T>
         name: 'index',
       );
     }
-    return start.stepBy(index * step);
+    return start.stepBy(index * step)!;
   }
 
   @override

@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'progression.dart';
+import '../deranged.dart';
 import 'utils.dart' as utils;
 
 /// One end of a range.
@@ -27,7 +27,7 @@ sealed class Bound<C extends Comparable<C>> {
   static Bound<C> maxLower<C extends Step<C>>(Bound<C> a, Bound<C> b) =>
       switch ((a, b)) {
         (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
-          InclusiveBound(utils.max(a, b)),
+          .inclusive(utils.max(a, b)),
         (
           InclusiveBound(value: final inclusive),
           ExclusiveBound(value: final exclusive),
@@ -35,9 +35,13 @@ sealed class Bound<C extends Comparable<C>> {
         (
           ExclusiveBound(value: final exclusive),
           InclusiveBound(value: final inclusive),
-        ) => InclusiveBound(utils.max(inclusive, exclusive.stepBy(1))),
+        ) => () {
+          final exclusiveToInclusive = exclusive.stepBy(1);
+          if (exclusiveToInclusive == null) return ExclusiveBound(exclusive);
+          return InclusiveBound(utils.max(inclusive, exclusiveToInclusive));
+        }(),
         (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
-          ExclusiveBound(utils.max(a, b)),
+          .exclusive(utils.max(a, b)),
         (UnboundedBound(), final other) ||
         (final other, UnboundedBound()) => other,
       };
@@ -46,7 +50,7 @@ sealed class Bound<C extends Comparable<C>> {
   static Bound<C> minUpper<C extends Step<C>>(Bound<C> a, Bound<C> b) =>
       switch ((a, b)) {
         (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
-          InclusiveBound(utils.min(a, b)),
+          .inclusive(utils.min(a, b)),
         (
           InclusiveBound(value: final inclusive),
           ExclusiveBound(value: final exclusive),
@@ -54,9 +58,13 @@ sealed class Bound<C extends Comparable<C>> {
         (
           ExclusiveBound(value: final exclusive),
           InclusiveBound(value: final inclusive),
-        ) => InclusiveBound(utils.min(inclusive, exclusive.stepBy(-1))),
+        ) => () {
+          final exclusiveToInclusive = exclusive.stepBy(-1);
+          if (exclusiveToInclusive == null) return ExclusiveBound(exclusive);
+          return InclusiveBound(utils.min(inclusive, exclusiveToInclusive));
+        }(),
         (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
-          ExclusiveBound(utils.min(a, b)),
+          .exclusive(utils.min(a, b)),
         (UnboundedBound(), final other) ||
         (final other, UnboundedBound()) => other,
       };
@@ -87,7 +95,7 @@ sealed class Bound<C extends Comparable<C>> {
 final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
   const InclusiveBound(this.value);
   static Bound<C> orUnbounded<C extends Comparable<C>>(C? value) =>
-      value != null ? InclusiveBound(value) : const UnboundedBound();
+      value != null ? .inclusive(value) : const .unbounded();
 
   final C value;
 
@@ -120,7 +128,7 @@ final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
 final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
   const ExclusiveBound(this.value);
   static Bound<C> orUnbounded<C extends Comparable<C>>(C? value) =>
-      value != null ? ExclusiveBound(value) : const UnboundedBound();
+      value != null ? .exclusive(value) : const .unbounded();
 
   final C value;
 

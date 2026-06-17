@@ -272,6 +272,57 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
 }
 
 extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
+  T? get endInclusive => end.stepBy(-1);
+
+  /// Returns a [RangeInclusive] representing a range with the same values.
+  RangeInclusive<T>? get inclusive {
+    // When [endInclusive] is `null`, [end] is the smallest possible value, so
+    // the range is empty. In that case, we can return a range with the same
+    // start and end, which is also empty.
+    return RangeInclusive(start, endInclusive ?? start);
+  }
+
+  /// Returns a [StepProgression] with this range's [start] and [end],
+  /// as well as the given [step].
+  StepProgression<T>? stepBy(int step) {
+    final endInclusive = this.endInclusive;
+    return endInclusive == null
+        ? null
+        : StepProgression(start, endInclusive, step);
+  }
+
+  /// Returns an [Iterable] that steps through every value of this range in
+  /// ascending order.
+  Iterable<T>? get iter => stepBy(1);
+
+  /// Returns the length of this range, i.e., how many steps it contains.
+  ///
+  /// For example, the length of a [Range] from 0 to 2 is 2 because it contains
+  /// the two elements 0 and 1.
+  int get length => start.stepsUntil(end);
+
+  StepProgression<T>? get reverse {
+    final endInclusive = this.endInclusive;
+    return endInclusive == null
+        ? null
+        : StepProgression(endInclusive, start, -1);
+  }
+
+  T operator [](int index) {
+    if (index < 0 || index >= length) {
+      throw IndexError.withLength(
+        index,
+        length,
+        indexable: this,
+        name: 'index',
+      );
+    }
+    return start.stepBy(index)!;
+  }
+}
+
+extension RangeOfStepUnlimitedExtension<T extends StepUnlimited<T>>
+    on Range<T> {
   T get endInclusive => end.stepBy(-1);
 
   /// Returns a [RangeInclusive] representing a range with the same values.
@@ -286,25 +337,7 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   /// ascending order.
   Iterable<T> get iter => stepBy(1);
 
-  /// Returns the length of this range, i.e., how many steps it contains.
-  ///
-  /// For example, the length of a [Range] from 0 to 2 is 2 because it contains
-  /// the two elements 0 and 1.
-  int get length => start.stepsUntil(end);
-
   StepProgression<T> get reverse => StepProgression(endInclusive, start, -1);
-
-  T operator [](int index) {
-    if (index < 0 || index >= length) {
-      throw IndexError.withLength(
-        index,
-        length,
-        indexable: this,
-        name: 'index',
-      );
-    }
-    return start.stepBy(index);
-  }
 }
 
 /// Encodes a [Range] as a map with "start" and "end" keys.
@@ -393,10 +426,13 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
 
 extension RangeInclusiveOfStepExtension<T extends Step<T>>
     on RangeInclusive<T> {
-  T get endExclusive => end.stepBy(1);
+  T? get endExclusive => end.stepBy(1);
 
   /// Returns a [Range] representing a range with the same values.
-  Range<T> get exclusive => Range(start, endExclusive);
+  Range<T>? get exclusive {
+    final endExclusive = this.endExclusive;
+    return endExclusive == null ? null : Range(start, endExclusive);
+  }
 
   /// Returns a [StepProgression] with this range's [start] and [end],
   /// as well as the given [step].
@@ -423,8 +459,16 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
         name: 'index',
       );
     }
-    return start.stepBy(index);
+    return start.stepBy(index)!;
   }
+}
+
+extension RangeInclusiveOfStepUnlimitedExtension<T extends StepUnlimited<T>>
+    on RangeInclusive<T> {
+  T get endExclusive => end.stepBy(1);
+
+  /// Returns a [Range] representing a range with the same values.
+  Range<T> get exclusive => Range(start, endExclusive);
 }
 
 extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
@@ -498,9 +542,23 @@ class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
 extension RangeFromOfStepExtension<T extends Step<T>> on RangeFrom<T> {
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
-  Iterable<T> get iter => const IntRangeFrom(0).map(start.stepBy);
+  Iterable<T> get iter sync* {
+    var value = start;
+    while (true) {
+      yield value;
+      final nextValue = value.stepBy(1);
+      if (nextValue == null) break;
 
-  T operator [](int index) => start.stepBy(index);
+      value = nextValue;
+    }
+  }
+
+  T operator [](int index) {
+    final result = start.stepBy(index);
+    // ignore: deprecated_member_use
+    if (result == null) throw IndexError(index, this, 'index');
+    return result;
+  }
 }
 
 // RangeTo
