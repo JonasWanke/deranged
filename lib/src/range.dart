@@ -173,7 +173,7 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
   /// bounded start.
   ///
   /// An exclusive bound is converted to an inclusive bound.
-  T? get startBoundAsInclusive => switch (startBound) {
+  T? get startAsInclusive => switch (startBound) {
     InclusiveBound(value: final value) => value,
     ExclusiveBound(value: final value) => value.stepBy(1),
     UnboundedBound() => null,
@@ -183,7 +183,7 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
   /// bounded start.
   ///
   /// An inclusive bound is converted to an exclusive bound.
-  T? get startBoundAsExclusive => switch (startBound) {
+  T? get startAsExclusive => switch (startBound) {
     InclusiveBound(value: final value) => value.stepBy(-1),
     ExclusiveBound(value: final value) => value,
     UnboundedBound() => null,
@@ -193,7 +193,7 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
   /// bounded end.
   ///
   /// An exclusive bound is converted to an inclusive bound.
-  T? get endBoundAsInclusive => switch (endBound) {
+  T? get endAsInclusive => switch (endBound) {
     InclusiveBound(value: final value) => value,
     ExclusiveBound(value: final value) => value.stepBy(-1),
     UnboundedBound() => null,
@@ -203,7 +203,7 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
   /// bounded end.
   ///
   /// An inclusive bound is converted to an exclusive bound.
-  T? get endBoundAsExclusive => switch (endBound) {
+  T? get endAsExclusive => switch (endBound) {
     InclusiveBound(value: final value) => value.stepBy(1),
     ExclusiveBound(value: final value) => value,
     UnboundedBound() => null,
