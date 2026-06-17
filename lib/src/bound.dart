@@ -13,6 +13,10 @@ import 'utils.dart' as utils;
 sealed class Bound<C extends Comparable<C>> {
   const Bound();
 
+  factory Bound.inclusive(C value) => InclusiveBound(value);
+  factory Bound.exclusive(C value) => ExclusiveBound(value);
+  factory Bound.unbounded() => const UnboundedBound();
+
   /// Returns the maximum of the two lower bounds [a] and [b].
   static Bound<C> maxLower<C extends Step<C>>(Bound<C> a, Bound<C> b) =>
       switch ((a, b)) {
