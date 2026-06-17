@@ -1,8 +1,7 @@
 import 'dart:math';
 
+import '../deranged.dart';
 import 'codec.dart';
-import 'progression.dart';
-import 'range.dart';
 
 /// An unbounded range of [int].
 class IntRangeFull extends RangeFull<num> {

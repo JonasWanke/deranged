@@ -1,5 +1,5 @@
+import '../deranged.dart';
 import 'codec.dart';
-import 'range.dart';
 
 class DoubleRangeFull extends RangeFull<num> {
   const DoubleRangeFull();

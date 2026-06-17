@@ -2,8 +2,7 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
-import 'int.dart';
-import 'range.dart';
+import '../deranged.dart';
 
 /// A progression of values of type [T], defined by a [start], [end]
 /// (exclusive), and [step].
