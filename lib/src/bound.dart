@@ -1,5 +1,8 @@
 import 'package:meta/meta.dart';
 
+import 'progression.dart';
+import 'utils.dart' as utils;
+
 /// One end of a range.
 ///
 /// See also:
@@ -9,6 +12,44 @@ import 'package:meta/meta.dart';
 @immutable
 sealed class Bound<C extends Comparable<C>> {
   const Bound();
+
+  /// Returns the maximum of the two lower bounds [a] and [b].
+  static Bound<C> maxLower<C extends Step<C>>(Bound<C> a, Bound<C> b) =>
+      switch ((a, b)) {
+        (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
+          InclusiveBound(utils.max(a, b)),
+        (
+          InclusiveBound(value: final inclusive),
+          ExclusiveBound(value: final exclusive),
+        ) ||
+        (
+          ExclusiveBound(value: final exclusive),
+          InclusiveBound(value: final inclusive),
+        ) => InclusiveBound(utils.max(inclusive, exclusive.stepBy(1))),
+        (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
+          ExclusiveBound(utils.max(a, b)),
+        (UnboundedBound(), final other) ||
+        (final other, UnboundedBound()) => other,
+      };
+
+  /// Returns the minimum of the two upper bounds [a] and [b].
+  static Bound<C> minUpper<C extends Step<C>>(Bound<C> a, Bound<C> b) =>
+      switch ((a, b)) {
+        (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
+          InclusiveBound(utils.min(a, b)),
+        (
+          InclusiveBound(value: final inclusive),
+          ExclusiveBound(value: final exclusive),
+        ) ||
+        (
+          ExclusiveBound(value: final exclusive),
+          InclusiveBound(value: final inclusive),
+        ) => InclusiveBound(utils.min(inclusive, exclusive.stepBy(-1))),
+        (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
+          ExclusiveBound(utils.min(a, b)),
+        (UnboundedBound(), final other) ||
+        (final other, UnboundedBound()) => other,
+      };
 
   /// Whether this is a bound with an exact (inclusive or exclusive) value.
   bool get isBounded;

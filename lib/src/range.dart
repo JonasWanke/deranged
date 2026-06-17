@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../deranged.dart';
 import 'codec.dart';
+import 'utils.dart';
 
 // RangeBounds
 
@@ -364,7 +365,7 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   RangeInclusive<C> operator |(RangeInclusive<C>? other) {
     return other == null
         ? this
-        : RangeInclusive(_min(start, other.start), _max(end, other.end));
+        : RangeInclusive(min(start, other.start), max(end, other.end));
   }
 
   /// Intersection of this and [other], i.e., the largest range containing only
@@ -376,18 +377,10 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   /// If the two ranges have no values in common, `null` is returned. For
   /// example, the intersection of the ranges 0..=2 and 3..=5 is `null`.
   RangeInclusive<C>? operator &(RangeInclusive<C> other) {
-    final result = RangeInclusive(
-      _max(start, other.start),
-      _min(end, other.end),
-    );
+    final result = RangeInclusive(max(start, other.start), min(end, other.end));
     if (result.isEmpty) return null;
     return result;
   }
-
-  static C _min<C extends Comparable<C>>(C a, C b) =>
-      a.compareTo(b) <= 0 ? a : b;
-  static C _max<C extends Comparable<C>>(C a, C b) =>
-      a.compareTo(b) >= 0 ? a : b;
 
   @override
   String toString() => 'RangeInclusive($start..=$end)';
