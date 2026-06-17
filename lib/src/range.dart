@@ -168,6 +168,48 @@ abstract class RangeBounds<C extends Comparable<C>> {
   String toString() => 'RangeBounds($startBound, $endBound)';
 }
 
+extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
+  /// Returns the inclusive start of this range, or `null` if this range has no
+  /// bounded start.
+  ///
+  /// An exclusive bound is converted to an inclusive bound.
+  T? get startBoundAsInclusive => switch (startBound) {
+    InclusiveBound(value: final value) => value,
+    ExclusiveBound(value: final value) => value.stepBy(1),
+    UnboundedBound() => null,
+  };
+
+  /// Returns the exclusive start of this range, or `null` if this range has no
+  /// bounded start.
+  ///
+  /// An inclusive bound is converted to an exclusive bound.
+  T? get startBoundAsExclusive => switch (startBound) {
+    InclusiveBound(value: final value) => value.stepBy(-1),
+    ExclusiveBound(value: final value) => value,
+    UnboundedBound() => null,
+  };
+
+  /// Returns the inclusive end of this range, or `null` if this range has no
+  /// bounded end.
+  ///
+  /// An exclusive bound is converted to an inclusive bound.
+  T? get endBoundAsInclusive => switch (endBound) {
+    InclusiveBound(value: final value) => value,
+    ExclusiveBound(value: final value) => value.stepBy(-1),
+    UnboundedBound() => null,
+  };
+
+  /// Returns the exclusive end of this range, or `null` if this range has no
+  /// bounded end.
+  ///
+  /// An inclusive bound is converted to an exclusive bound.
+  T? get endBoundAsExclusive => switch (endBound) {
+    InclusiveBound(value: final value) => value.stepBy(1),
+    ExclusiveBound(value: final value) => value,
+    UnboundedBound() => null,
+  };
+}
+
 // AnyRange
 
 /// A range supporting all possible [Bound]s.
