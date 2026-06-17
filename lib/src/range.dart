@@ -209,6 +209,11 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
     ExclusiveBound(value: final value) => value,
     UnboundedBound() => null,
   };
+
+  AnyRange<T> operator &(RangeBounds<T> other) => AnyRange(
+    .maxLower(startBound, other.startBound),
+    .minUpper(endBound, other.endBound),
+  );
 }
 
 // AnyRange
