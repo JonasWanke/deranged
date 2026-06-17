@@ -14,7 +14,13 @@ sealed class Bound<C extends Comparable<C>> {
   const Bound();
 
   const factory Bound.inclusive(C value) = InclusiveBound;
+  factory Bound.inclusiveOrUnbounded(C? value) =>
+      InclusiveBound.orUnbounded(value);
+
   const factory Bound.exclusive(C value) = ExclusiveBound;
+  factory Bound.exclusiveOrUnbounded(C? value) =>
+      ExclusiveBound.orUnbounded(value);
+
   const factory Bound.unbounded() = UnboundedBound;
 
   /// Returns the maximum of the two lower bounds [a] and [b].
@@ -80,6 +86,8 @@ sealed class Bound<C extends Comparable<C>> {
 /// - [UnboundedBound], which represents an unbounded bound.
 final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
   const InclusiveBound(this.value);
+  static Bound<C> orUnbounded<C extends Comparable<C>>(C? value) =>
+      value != null ? InclusiveBound(value) : const UnboundedBound();
 
   final C value;
 
@@ -111,6 +119,8 @@ final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
 /// - [UnboundedBound], which represents an unbounded bound.
 final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
   const ExclusiveBound(this.value);
+  static Bound<C> orUnbounded<C extends Comparable<C>>(C? value) =>
+      value != null ? ExclusiveBound(value) : const UnboundedBound();
 
   final C value;
 
