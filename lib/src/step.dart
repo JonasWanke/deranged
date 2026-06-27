@@ -13,7 +13,7 @@ import '../deranged.dart';
 /// - [StepUnlimited], which extends this interface to include unlimited
 ///   stepping.
 @immutable
-abstract interface class Step<C extends Step<C>> implements Comparable<C> {
+mixin Step<C extends Step<C>> implements Comparable<C> {
   /// Returns the result of moving [count] steps forward from this.
   ///
   /// - If [count] is positive, the result is after this.
@@ -44,8 +44,7 @@ abstract interface class Step<C extends Step<C>> implements Comparable<C> {
 /// [Step] objects that can be stepped indefinitely in either direction (using
 /// [stepBy]), without returning `null`.
 @immutable
-abstract interface class StepUnlimited<C extends StepUnlimited<C>>
-    implements Step<C> {
+mixin StepUnlimited<C extends StepUnlimited<C>> implements Step<C> {
   @override
   C stepBy(int count);
 
