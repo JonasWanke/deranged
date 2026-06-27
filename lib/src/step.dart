@@ -24,7 +24,10 @@ abstract interface class Step<C extends Step<C>> implements Comparable<C> {
   /// `2.stepBy(3) = 2 + 3 = 5`.
   C? stepBy(int count);
 
+  /// The value directly before this one, or `null` if this is the first value.
   C? get previous => stepBy(-1);
+
+  /// The value directly after this one, or `null` if this is the last value.
   C? get next => stepBy(1);
 
   /// The number of steps between this and [other].
@@ -46,8 +49,13 @@ abstract interface class StepUnlimited<C extends StepUnlimited<C>>
   @override
   C stepBy(int count);
 
-  @override C get previous => stepBy(-1);
-  @override C get next => stepBy(1);
+  /// The value directly before this one.
+  @override
+  C get previous => stepBy(-1);
+
+  /// The value directly after this one.
+  @override
+  C get next => stepBy(1);
 }
 
 extension StepUnlimitedExtension<C extends StepUnlimited<C>> on C {
