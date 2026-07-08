@@ -38,14 +38,14 @@ import 'utils.dart';
 abstract class RangeBounds<C extends Comparable<C>> {
   const RangeBounds();
 
-  factory RangeBounds.full() => const RangeFull();
+  const factory RangeBounds.full() = RangeFull;
   factory RangeBounds.inclusiveOrUnbounded(C? start, C? end) =>
       AnyRange.inclusiveOrUnbounded(start, end);
   factory RangeBounds.exclusiveOrUnbounded(C? start, C? end) =>
       AnyRange.exclusiveOrUnbounded(start, end);
-  factory RangeBounds.from(C start) => RangeFrom(start);
-  factory RangeBounds.to(C end) => RangeTo(end);
-  factory RangeBounds.toInclusive(C end) => RangeToInclusive(end);
+  const factory RangeBounds.from(C start) = RangeFrom;
+  const factory RangeBounds.to(C end) = RangeTo;
+  const factory RangeBounds.toInclusive(C end) = RangeToInclusive;
 
   /// The start bound of this range.
   Bound<C> get startBound;
