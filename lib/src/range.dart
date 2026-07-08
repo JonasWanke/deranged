@@ -226,6 +226,13 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
 class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
   const AnyRange(this.startBound, this.endBound);
 
+  AnyRange.inclusiveOrUnbounded(C? start, C? end)
+    : startBound = .inclusiveOrUnbounded(start),
+      endBound = .inclusiveOrUnbounded(end);
+  AnyRange.exclusiveOrUnbounded(C? start, C? end)
+    : startBound = .exclusiveOrUnbounded(start),
+      endBound = .exclusiveOrUnbounded(end);
+
   @override
   final Bound<C> startBound;
   @override
