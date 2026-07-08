@@ -63,6 +63,10 @@ abstract class RangeBounds<C extends Comparable<C>> {
   /// value.
   bool get isNotEmpty => !isEmpty;
 
+  /// Returns whether this range is unbounded, i.e., has no start or end bound.
+  bool get isUnbounded =>
+      startBound is UnboundedBound && endBound is UnboundedBound;
+
   /// Returns whether [value] is contained in this range.
   bool contains(C value) {
     final startMatches = switch (startBound) {
