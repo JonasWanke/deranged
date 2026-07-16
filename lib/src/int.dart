@@ -20,7 +20,7 @@ class IntRange extends Range<num>
     implements
         // ignore: avoid_implementing_value_types
         IntProgression {
-  const IntRange(super.start, super.end);
+  const IntRange(int super.start, int super.end);
 
   @override
   int get start => super.start as int;
@@ -82,7 +82,7 @@ class IntRangeAsMapCodec
 
 /// A range of [int] starting from an inclusive bound and without an end bound.
 class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
-  const IntRangeFrom(super.start);
+  const IntRangeFrom(int super.start);
 
   @override
   int get start => super.start as int;
@@ -128,7 +128,7 @@ class _IntRangeFromIterator implements Iterator<int> {
 
 /// A range of [int] ending with an exclusive bound and without a start bound.
 class IntRangeTo extends RangeTo<num> {
-  const IntRangeTo(super.end);
+  const IntRangeTo(int super.end);
 
   int get endInclusive => end - 1;
   @override

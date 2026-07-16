@@ -12,7 +12,7 @@ class DoubleRangeFull extends RangeFull<num> {
 }
 
 class DoubleRange extends Range<num> {
-  const DoubleRange(super.start, super.end);
+  const DoubleRange(double super.start, double super.end);
 
   @override
   double get start => super.start as double;
@@ -44,7 +44,7 @@ class DoubleRangeAsMapCodec
 }
 
 class DoubleRangeInclusive extends RangeInclusive<num> {
-  const DoubleRangeInclusive(super.start, super.end);
+  const DoubleRangeInclusive(double super.start, double super.end);
 
   @override
   double get start => super.start as double;
@@ -59,7 +59,7 @@ class DoubleRangeInclusive extends RangeInclusive<num> {
 }
 
 class DoubleRangeFrom extends RangeFrom<num> {
-  const DoubleRangeFrom(super.start);
+  const DoubleRangeFrom(double super.start);
 
   @override
   double get start => super.start as double;
@@ -72,7 +72,7 @@ class DoubleRangeFrom extends RangeFrom<num> {
 }
 
 class DoubleRangeTo extends RangeTo<num> {
-  const DoubleRangeTo(super.end);
+  const DoubleRangeTo(double super.end);
 
   double get endExclusive => end - 1;
   @override
@@ -86,7 +86,7 @@ class DoubleRangeTo extends RangeTo<num> {
 }
 
 class DoubleRangeToInclusive extends RangeToInclusive<num> {
-  const DoubleRangeToInclusive(super.end);
+  const DoubleRangeToInclusive(double super.end);
 
   double get endExclusive => end - 1;
   @override
