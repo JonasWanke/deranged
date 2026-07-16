@@ -496,7 +496,11 @@ extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
   /// The union of all contained [RangeInclusive]s.
   ///
   /// See [RangeInclusive.&] for details.
-  RangeInclusive<C>? get union => reduce((value, element) => value | element);
+  RangeInclusive<C>? get union => fold(
+    null,
+    (previousValue, element) =>
+        previousValue == null ? element : previousValue | element,
+  );
 
   /// The union of all contained [RangeInclusive]s.
   ///
