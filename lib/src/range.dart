@@ -483,6 +483,43 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
     }
     return start.stepBy(index)!;
   }
+
+  /// Generalization of [&] accepting any [RangeBounds] as the other range.
+  RangeInclusive<T> intersectRangeBounds(RangeBounds<T>? other) {
+    if (other == null) return this;
+
+    final T start;
+    switch (other.startBound) {
+      case InclusiveBound(value: final otherStart):
+        start = max(this.start, otherStart);
+
+      case ExclusiveBound(value: final otherStart):
+        final otherNext = otherStart.next;
+        if (otherNext == null) return RangeInclusive(otherStart, otherStart);
+
+        start = max(this.start, otherNext);
+
+      case UnboundedBound():
+        start = this.start;
+    }
+
+    final T end;
+    switch (other.endBound) {
+      case InclusiveBound(value: final otherEnd):
+        end = min(this.end, otherEnd);
+
+      case ExclusiveBound(value: final otherEnd):
+        final otherPrevious = otherEnd.previous;
+        if (otherPrevious == null) return RangeInclusive(otherEnd, otherEnd);
+
+        end = min(this.end, otherPrevious);
+
+      case UnboundedBound():
+        end = this.end;
+    }
+
+    return RangeInclusive(start, end);
+  }
 }
 
 extension RangeInclusiveOfStepUnlimitedExtension<T extends StepUnlimited<T>>
