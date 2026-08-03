@@ -434,7 +434,9 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   ///
   /// If the two ranges have no values in common, `null` is returned. For
   /// example, the intersection of the ranges 0..=2 and 3..=5 is `null`.
-  RangeInclusive<C>? operator &(RangeInclusive<C> other) {
+  RangeInclusive<C>? operator &(RangeInclusive<C>? other) {
+    if (other == null) return null;
+
     final result = RangeInclusive(max(start, other.start), min(end, other.end));
     if (result.isEmpty) return null;
     return result;

@@ -24,50 +24,56 @@ sealed class Bound<C extends Comparable<C>> {
   const factory Bound.unbounded() = UnboundedBound;
 
   /// Returns the maximum of the two lower bounds [a] and [b].
-  static Bound<C> maxLower<C extends Step<C>>(Bound<C> a, Bound<C> b) =>
-      switch ((a, b)) {
-        (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
-          .inclusive(utils.max(a, b)),
-        (
-          InclusiveBound(value: final inclusive),
-          ExclusiveBound(value: final exclusive),
-        ) ||
-        (
-          ExclusiveBound(value: final exclusive),
-          InclusiveBound(value: final inclusive),
-        ) => () {
-          final exclusiveToInclusive = exclusive.stepBy(1);
-          if (exclusiveToInclusive == null) return ExclusiveBound(exclusive);
-          return InclusiveBound(utils.max(inclusive, exclusiveToInclusive));
-        }(),
-        (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
-          .exclusive(utils.max(a, b)),
-        (UnboundedBound(), final other) ||
-        (final other, UnboundedBound()) => other,
-      };
+  static Bound<C> maxLower<C extends Step<C>>(Bound<C> a, Bound<C>? b) {
+    if (b == null) return a;
+
+    return switch ((a, b)) {
+      (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
+        .inclusive(utils.max(a, b)),
+      (
+        InclusiveBound(value: final inclusive),
+        ExclusiveBound(value: final exclusive),
+      ) ||
+      (
+        ExclusiveBound(value: final exclusive),
+        InclusiveBound(value: final inclusive),
+      ) => () {
+        final exclusiveToInclusive = exclusive.stepBy(1);
+        if (exclusiveToInclusive == null) return ExclusiveBound(exclusive);
+        return InclusiveBound(utils.max(inclusive, exclusiveToInclusive));
+      }(),
+      (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
+        .exclusive(utils.max(a, b)),
+      (UnboundedBound(), final other) ||
+      (final other, UnboundedBound()) => other,
+    };
+  }
 
   /// Returns the minimum of the two upper bounds [a] and [b].
-  static Bound<C> minUpper<C extends Step<C>>(Bound<C> a, Bound<C> b) =>
-      switch ((a, b)) {
-        (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
-          .inclusive(utils.min(a, b)),
-        (
-          InclusiveBound(value: final inclusive),
-          ExclusiveBound(value: final exclusive),
-        ) ||
-        (
-          ExclusiveBound(value: final exclusive),
-          InclusiveBound(value: final inclusive),
-        ) => () {
-          final exclusiveToInclusive = exclusive.stepBy(-1);
-          if (exclusiveToInclusive == null) return ExclusiveBound(exclusive);
-          return InclusiveBound(utils.min(inclusive, exclusiveToInclusive));
-        }(),
-        (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
-          .exclusive(utils.min(a, b)),
-        (UnboundedBound(), final other) ||
-        (final other, UnboundedBound()) => other,
-      };
+  static Bound<C> minUpper<C extends Step<C>>(Bound<C> a, Bound<C>? b) {
+    if (b == null) return a;
+
+    return switch ((a, b)) {
+      (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
+        .inclusive(utils.min(a, b)),
+      (
+        InclusiveBound(value: final inclusive),
+        ExclusiveBound(value: final exclusive),
+      ) ||
+      (
+        ExclusiveBound(value: final exclusive),
+        InclusiveBound(value: final inclusive),
+      ) => () {
+        final exclusiveToInclusive = exclusive.stepBy(-1);
+        if (exclusiveToInclusive == null) return ExclusiveBound(exclusive);
+        return InclusiveBound(utils.min(inclusive, exclusiveToInclusive));
+      }(),
+      (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
+        .exclusive(utils.min(a, b)),
+      (UnboundedBound(), final other) ||
+      (final other, UnboundedBound()) => other,
+    };
+  }
 
   /// Whether this is a bound with an exact (inclusive or exclusive) value.
   bool get isBounded;
