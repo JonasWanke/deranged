@@ -71,6 +71,9 @@ class IntRange extends Range<num> with Iterable<int> {
 
   int operator [](int index) => elementAt(index);
 
+  /// Returns whether this range contains exactly one value.
+  bool get isSingle => length == 1;
+
   /// Returns this range with both bounds moved by [offset].
   IntRange shift(int offset) => IntRange(start + offset, end + offset);
 

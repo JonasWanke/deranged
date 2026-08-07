@@ -410,6 +410,9 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   /// Empty ranges have a length of zero.
   int get length => math.max(0, start.stepsUntil(end));
 
+  /// Returns whether this range contains exactly one value.
+  bool get isSingle => length == 1;
+
   /// Returns this range with both bounds moved by [offset] steps, or `null` if
   /// either bound can't be stepped that far.
   Range<T>? shift(int offset) {
