@@ -41,6 +41,26 @@ mixin Step<C extends Step<C>> implements Comparable<C> {
   int stepsUntil(C other);
 }
 
+extension StepExtension<C extends Step<C>> on C {
+  /// Creates a range from `this` (inclusive) to `this.stepBy(length)`
+  /// (exclusive).
+  Range<C>? rangeUntilWithLength(int length) {
+    final end = stepBy(length);
+    if (end == null) return null;
+
+    return Range(this, end);
+  }
+
+  /// Creates a range from `this` (inclusive) to `this.stepBy(length)`
+  /// (inclusive).
+  RangeInclusive<C>? rangeToWithLength(int length) {
+    final end = stepBy(length);
+    if (end == null) return null;
+
+    return RangeInclusive(this, end);
+  }
+}
+
 /// [Step] objects that can be stepped indefinitely in either direction (using
 /// [stepBy]), without returning `null`.
 @immutable
