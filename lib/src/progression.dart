@@ -64,6 +64,15 @@ class StepProgression<T extends Step<T>> extends Progression<T> {
   StepProgression<T> stepBy(int step) =>
       StepProgression(start, endInclusive, step);
 
+  /// Returns a [StepProgression] with the same values in reverse order.
+  ///
+  /// {@macro deranged.Progression.reverse}
+  StepProgression<T> get reverse => isEmpty
+      // Any empty progression will do, and swapping the bounds of an empty one
+      // keeps it empty once the step is negated.
+      ? StepProgression(endInclusive, start, -step)
+      : StepProgression(last, start, -step);
+
   @override
   Iterator<T> get iterator =>
       Iterable.generate(length, (i) => start.stepBy(i * step)!).iterator;

@@ -77,6 +77,9 @@ class IntRange extends Range<num> with Iterable<int> {
   /// Returns this range with both bounds moved by [offset].
   IntRange shift(int offset) => IntRange(start + offset, end + offset);
 
+  /// Returns an [IntProgression] with this range's values in descending order.
+  IntProgression get reverse => IntProgression(endInclusive, start, -1);
+
   @override
   IntRange copyWith({covariant int? start, covariant int? end}) =>
       IntRange(start ?? this.start, end ?? this.end);
@@ -242,6 +245,20 @@ class IntProgression extends Progression<int> {
   /// Returns an [IntProgression] with this progression's [start] and
   /// [endInclusive], as well as the given [step].
   IntProgression stepBy(int step) => IntProgression(start, endInclusive, step);
+
+  /// Returns an [IntProgression] with the same values in reverse order.
+  ///
+  /// {@template deranged.Progression.reverse}
+  /// The reversed progression starts at this one's [last] value, so that both
+  /// contain exactly the same values. Note that this is not necessarily
+  /// [endInclusive], which is only reached if it's a whole number of [step]s
+  /// away from [start].
+  /// {@endtemplate}
+  IntProgression get reverse => isEmpty
+      // Any empty progression will do, and swapping the bounds of an empty one
+      // keeps it empty once the step is negated.
+      ? IntProgression(endInclusive, start, -step)
+      : IntProgression(last, start, -step);
 
   @override
   Iterator<int> get iterator =>
