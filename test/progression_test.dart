@@ -43,7 +43,7 @@ void main() {
 }
 
 @immutable
-class _Foo implements Step<_Foo> {
+class _Foo with Step<_Foo> {
   const _Foo(this.value);
 
   final int value;

@@ -15,11 +15,7 @@ class IntRangeFull extends RangeFull<num> {
 }
 
 /// A half-open range of [int]: start is included, end is excluded.
-class IntRange extends Range<num>
-    with Iterable<int>
-    implements
-        // ignore: avoid_implementing_value_types
-        IntProgression {
+class IntRange extends Range<num> with Iterable<int> {
   const IntRange(int super.start, int super.end);
 
   @override
@@ -27,18 +23,16 @@ class IntRange extends Range<num>
   @override
   int get end => super.end as int;
   int get endInclusive => end - 1;
-  @override
-  int get step => 1;
 
-  /// Returns an [IntProgression] with this range's [start] and [end],
+  /// Returns an [IntProgression] with this range's [start] and [endInclusive],
   /// as well as the given [step].
-  IntProgression stepBy(int step) => IntProgression(start, end, step);
+  IntProgression stepBy(int step) => IntProgression(start, endInclusive, step);
 
   @override
   Iterator<int> get iterator =>
       Iterable.generate(length, (i) => start + i).iterator;
   @override
-  int get length => end - start;
+  int get length => max(0, end - start);
   @override
   int get last => isEmpty ? throw StateError('No element') : endInclusive;
   @override
@@ -54,7 +48,6 @@ class IntRange extends Range<num>
     return start + index;
   }
 
-  @override
   int operator [](int index) => elementAt(index);
 
   @override
@@ -89,16 +82,15 @@ class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
 
   @override
   Iterator<int> get iterator => _IntRangeFromIterator(this);
+
+  /// Always throws, since this range is infinite.
+  @override
+  Never get length =>
+      throw UnsupportedError('`IntRangeFrom` is infinite and has no length.');
+
   @override
   int elementAt(int index) {
-    if (index < 0) {
-      throw IndexError.withLength(
-        index,
-        length,
-        indexable: this,
-        name: 'index',
-      );
-    }
+    if (index < 0) throw RangeError.range(index, 0, null, 'index');
     return start + index;
   }
 
@@ -135,7 +127,7 @@ class IntRangeTo extends RangeTo<num> {
   int get end => super.end as int;
 
   @override
-  bool contains(Object? value) => value is int && value <= end;
+  bool contains(Object? value) => value is int && value < end;
 
   @override
   String toString() => 'IntRangeTo(..<$end)';
@@ -146,6 +138,9 @@ extension IntExtension on int {
   IntRange rangeUntil(int other) => IntRange(this, other);
 
   /// Creates a range from `this` (inclusive) to [other] (inclusive).
+  ///
+  /// Note that the returned [IntRange] has an exclusive end of `other + 1`,
+  /// which overflows if [other] is the maximum [int] value.
   IntRange rangeTo(int other) => IntRange(this, other + 1);
 
   /// Creates a range from `this` (inclusive) to `this + length` (exclusive).

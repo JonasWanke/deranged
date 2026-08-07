@@ -55,6 +55,35 @@ void main() {
       expect(range.contains(start + 2), false);
       expect(range.contains(start + 3), false);
     });
+
+    Glados2(any.int, any.positiveInt).test('reversed is empty', (start, size) {
+      final range = IntRange(start + size, start);
+
+      expect(range.isEmpty, true);
+      expect(range.length, 0);
+      expect(range.toList(), <int>[]);
+    });
+
+    test('stepBy(…) stays within the exclusive end', () {
+      // `0.rangeTo(9)` is `IntRange(0, 10)`, so the last value must be 8 — the
+      // exclusive end must not be handed to `IntProgression`, whose end is
+      // inclusive.
+      expect(0.rangeTo(9).stepBy(2).toList(), [0, 2, 4, 6, 8]);
+      expect(0.rangeUntil(4).stepBy(2).toList(), [0, 2]);
+      expect(0.rangeUntil(5).stepBy(2).toList(), [0, 2, 4]);
+      expect(const IntRange(0, 0).stepBy(2).toList(), <int>[]);
+    });
+
+    test('is not an IntProgression', () {
+      // `IntRange` used to `implement IntProgression`, which made `==`
+      // asymmetric because the two use different equality implementations.
+      expect(const IntRange(0, 3), isNot(isA<IntProgression>()));
+
+      // ignore: unrelated_type_equality_checks
+      expect(const IntRange(0, 3) == const IntProgression(0, 3, 1), false);
+      // ignore: unrelated_type_equality_checks
+      expect(const IntProgression(0, 3, 1) == const IntRange(0, 3), false);
+    });
   });
 
   Glados<int>().test('IntRangeFrom', (start) {
@@ -68,15 +97,23 @@ void main() {
     expect(range.contains(start), true);
     expect(range.contains(start + 1), true);
     expect(range.contains(start + 10000), true);
+
+    expect(range.elementAt(0), start);
+    expect(range.elementAt(3), start + 3);
+    // Must throw instead of hanging: `length` can't be computed for an
+    // infinite range, so it must not be used to validate the index.
+    expect(() => range.elementAt(-1), throwsA(isA<RangeError>()));
+    expect(() => range.length, throwsA(isA<UnsupportedError>()));
   });
 
-  Glados<int>().test('IntRangeTo', (endInclusive) {
-    final range = IntRangeTo(endInclusive);
+  Glados<int>().test('IntRangeTo', (end) {
+    final range = IntRangeTo(end);
 
-    expect(range.contains(endInclusive - 10000), true);
-    expect(range.contains(endInclusive - 1), true);
-    expect(range.contains(endInclusive), true);
-    expect(range.contains(endInclusive + 1), false);
+    expect(range.endInclusive, end - 1);
+    expect(range.contains(end - 10000), true);
+    expect(range.contains(end - 1), true);
+    expect(range.contains(end), false);
+    expect(range.contains(end + 1), false);
   });
 
   group('IntProgression', () {

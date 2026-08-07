@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
 
@@ -294,12 +295,15 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
 extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   T? get endInclusive => end.stepBy(-1);
 
-  /// Returns a [RangeInclusive] representing a range with the same values.
+  /// Returns a [RangeInclusive] representing a range with the same values, or
+  /// `null` if that is not possible.
+  ///
+  /// When [endInclusive] is `null`, [end] is the smallest possible value, so
+  /// this range is empty. An empty [RangeInclusive] requires a start greater
+  /// than its end, which can't be expressed here, so `null` is returned.
   RangeInclusive<T>? get inclusive {
-    // When [endInclusive] is `null`, [end] is the smallest possible value, so
-    // the range is empty. In that case, we can return a range with the same
-    // start and end, which is also empty.
-    return RangeInclusive(start, endInclusive ?? start);
+    final endInclusive = this.endInclusive;
+    return endInclusive == null ? null : RangeInclusive(start, endInclusive);
   }
 
   /// Returns a [StepProgression] with this range's [start] and [end],
@@ -319,7 +323,9 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   ///
   /// For example, the length of a [Range] from 0 to 2 is 2 because it contains
   /// the two elements 0 and 1.
-  int get length => start.stepsUntil(end);
+  ///
+  /// Empty ranges have a length of zero.
+  int get length => math.max(0, start.stepsUntil(end));
 
   StepProgression<T>? get reverse {
     final endInclusive = this.endInclusive;
@@ -468,7 +474,9 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   ///
   /// For example, the length of a [RangeInclusive] from 0 to 2 is 3 because it
   /// contains the three elements 0, 1, and 2.
-  int get length => start.stepsUntil(end) + 1;
+  ///
+  /// Empty ranges have a length of zero.
+  int get length => math.max(0, start.stepsUntil(end) + 1);
 
   StepProgression<T> get reverse => StepProgression(end, start, -1);
 
@@ -534,16 +542,16 @@ extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
     on Iterable<RangeInclusive<C>> {
   /// The union of all contained [RangeInclusive]s.
   ///
-  /// See [RangeInclusive.&] for details.
+  /// See [RangeInclusive.|] for details.
   RangeInclusive<C>? get union => fold(
     null,
     (previousValue, element) =>
         previousValue == null ? element : previousValue | element,
   );
 
-  /// The union of all contained [RangeInclusive]s.
+  /// The intersection of all contained [RangeInclusive]s.
   ///
-  /// See [RangeInclusive.|] for details.
+  /// See [RangeInclusive.&] for details.
   RangeInclusive<C>? get intersection {
     var result = firstOrNull;
     if (result == null) return null;
