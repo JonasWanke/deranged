@@ -27,6 +27,10 @@ class DoubleRange extends Range<num> {
   double get end => super.end as double;
 
   @override
+  DoubleRange copyWith({covariant double? start, covariant double? end}) =>
+      DoubleRange(start ?? this.start, end ?? this.end);
+
+  @override
   Range<D> mapBounds<D extends Comparable<D>>(
     covariant D Function(double) mapper,
   ) => Range(mapper(start), mapper(end));
@@ -66,6 +70,12 @@ class DoubleRangeInclusive extends RangeInclusive<num> {
   double get start => super.start as double;
   @override
   double get end => super.end as double;
+
+  @override
+  DoubleRangeInclusive copyWith({
+    covariant double? start,
+    covariant double? end,
+  }) => DoubleRangeInclusive(start ?? this.start, end ?? this.end);
 
   @override
   RangeInclusive<D> mapBounds<D extends Comparable<D>>(

@@ -180,6 +180,9 @@ abstract class RangeBounds<C extends Comparable<C>> {
     return startMatches && endMatches;
   }
 
+  AnyRange<C> copyWithBounds({Bound<C>? startBound, Bound<C>? endBound}) =>
+      AnyRange(startBound ?? this.startBound, endBound ?? this.endBound);
+
   /// Returns a range of the same shape with every bound value mapped using
   /// [mapper].
   ///
@@ -359,6 +362,9 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
   @override
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
 
+  Range<C> copyWith({covariant C? start, covariant C? end}) =>
+      Range(start ?? this.start, end ?? this.end);
+
   @override
   Range<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
       Range(mapper(start), mapper(end));
@@ -479,6 +485,9 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   /// Returns whether this range contains only a single value, i.e., its start
   /// and end are equal.
   bool get isSingle => start == end;
+
+  RangeInclusive<C> copyWith({covariant C? start, covariant C? end}) =>
+      RangeInclusive(start ?? this.start, end ?? this.end);
 
   @override
   RangeInclusive<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>

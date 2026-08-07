@@ -72,6 +72,10 @@ class IntRange extends Range<num> with Iterable<int> {
   int operator [](int index) => elementAt(index);
 
   @override
+  IntRange copyWith({covariant int? start, covariant int? end}) =>
+      IntRange(start ?? this.start, end ?? this.end);
+
+  @override
   Range<D> mapBounds<D extends Comparable<D>>(
     covariant D Function(int) mapper,
   ) => Range(mapper(start), mapper(end));
