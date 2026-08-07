@@ -46,9 +46,9 @@ void main() {
     expect(range.contains(10000.0), true);
   });
 
-  group('DoubleRangeTo', () {
+  group('DoubleRangeUntil', () {
     test('contains(…) excludes the end', () {
-      const range = DoubleRangeTo(5);
+      const range = DoubleRangeUntil(5);
 
       expect(range.contains(-10000.0), true);
       expect(range.contains(4.999), true);
@@ -57,12 +57,12 @@ void main() {
     });
 
     test('toString(…) uses the exclusive notation', () {
-      expect(const DoubleRangeTo(5).toString(), 'DoubleRangeTo(..<5.0)');
+      expect(const DoubleRangeUntil(5).toString(), 'DoubleRangeUntil(..<5.0)');
     });
   });
 
-  test('DoubleRangeToInclusive.contains(…) includes the end', () {
-    const range = DoubleRangeToInclusive(5);
+  test('DoubleRangeTo.contains(…) includes the end', () {
+    const range = DoubleRangeTo(5);
 
     expect(range.contains(-10000.0), true);
     expect(range.contains(5.0), true);

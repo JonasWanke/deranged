@@ -65,13 +65,30 @@ void main() {
     });
 
     test('stepBy(…) stays within the exclusive end', () {
-      // `0.rangeTo(9)` is `IntRange(0, 10)`, so the last value must be 8 — the
+      // `0.rangeTo(9)` is `IntRange(0, 10)`, so the last value must be 8 – the
       // exclusive end must not be handed to `IntProgression`, whose end is
       // inclusive.
       expect(0.rangeTo(9).stepBy(2).toList(), [0, 2, 4, 6, 8]);
       expect(0.rangeUntil(4).stepBy(2).toList(), [0, 2]);
       expect(0.rangeUntil(5).stepBy(2).toList(), [0, 2, 4]);
       expect(const IntRange(0, 0).stepBy(2).toList(), <int>[]);
+    });
+
+    Glados2(any.int, any.positiveIntOrZero).test('inclusive(…)', (start, size) {
+      final range = IntRange.inclusive(start, start + size);
+
+      expect(range, IntRange(start, start + size + 1));
+      expect(range.end, start + size + 1);
+      expect(range.endInclusive, start + size);
+      expect(range.length, size + 1);
+      expect(range.contains(start + size), true);
+      expect(range.contains(start + size + 1), false);
+    });
+
+    test('inclusive(…) matches int.rangeTo(…)', () {
+      expect(const IntRange.inclusive(0, 4), 0.rangeTo(4));
+      expect(0.rangeTo(4).toList(), [0, 1, 2, 3, 4]);
+      expect(0.rangeUntil(4).toList(), [0, 1, 2, 3]);
     });
 
     test('is not an IntProgression', () {
@@ -106,14 +123,23 @@ void main() {
     expect(() => range.length, throwsA(isA<UnsupportedError>()));
   });
 
-  Glados<int>().test('IntRangeTo', (end) {
-    final range = IntRangeTo(end);
+  Glados<int>().test('IntRangeUntil', (end) {
+    final range = IntRangeUntil(end);
 
     expect(range.endInclusive, end - 1);
     expect(range.contains(end - 10000), true);
     expect(range.contains(end - 1), true);
     expect(range.contains(end), false);
     expect(range.contains(end + 1), false);
+  });
+
+  test('IntProgression.stepBy(…)', () {
+    const progression = IntProgression(0, 10, 1);
+
+    expect(progression.endInclusive, 10);
+    expect(progression.stepBy(2).toList(), [0, 2, 4, 6, 8, 10]);
+    expect(progression.stepBy(3).toList(), [0, 3, 6, 9]);
+    expect(progression.stepBy(2), const IntProgression(0, 10, 2));
   });
 
   group('IntProgression', () {

@@ -11,30 +11,40 @@ import 'utils.dart';
 
 /// Base class for [Range] & co., providing common methods.
 ///
+/// Names follow one convention: **`until` means an exclusive end, `to` means an
+/// inclusive end** — in class names ([RangeUntil] vs. [RangeTo]) as well as in
+/// method names ([ComparableExtension.rangeUntil] vs.
+/// [ComparableExtension.rangeTo]).
+///
 /// Here's an overview of the different subclasses:
 ///
 // ignore: lines_longer_than_80_chars
-/// | Start Bound | End Bound | Generic            | For [int]      | For [double]             |
+/// | Start Bound | End Bound | Generic          | For [int]            | For [double]           |
 // ignore: lines_longer_than_80_chars
-/// | :---------- | :-------- | :----------------- | :------------- | :----------------------- |
+/// | :---------- | :-------- | :--------------- | :------------------- | :--------------------- |
 // ignore: lines_longer_than_80_chars
-/// | Inclusive   | Inclusive | [RangeInclusive]   | [IntRange]     | [DoubleRangeInclusive]   |
+/// | Inclusive   | Inclusive | [RangeInclusive] | [IntRange.inclusive] | [DoubleRangeInclusive] |
 // ignore: lines_longer_than_80_chars
-/// | Inclusive   | Exclusive | [Range]            | [IntRange]     | [DoubleRange]            |
+/// | Inclusive   | Exclusive | [Range]          | [IntRange]           | [DoubleRange]          |
 // ignore: lines_longer_than_80_chars
-/// | Inclusive   | Unbounded | [RangeFrom]        | [IntRangeFrom] | [DoubleRangeFrom]        |
+/// | Inclusive   | Unbounded | [RangeFrom]      | [IntRangeFrom]       | [DoubleRangeFrom]      |
 // ignore: lines_longer_than_80_chars
-/// | Exclusive   | Inclusive | —                  | —              | —                        |
+/// | Exclusive   | Inclusive | —                | —                    | —                      |
 // ignore: lines_longer_than_80_chars
-/// | Exclusive   | Exclusive | —                  | —              | —                        |
+/// | Exclusive   | Exclusive | —                | —                    | —                      |
 // ignore: lines_longer_than_80_chars
-/// | Exclusive   | Unbounded | —                  | —              | —                        |
+/// | Exclusive   | Unbounded | —                | —                    | —                      |
 // ignore: lines_longer_than_80_chars
-/// | Unbounded   | Inclusive | [RangeToInclusive] | [IntRangeTo]   | [DoubleRangeToInclusive] |
+/// | Unbounded   | Inclusive | [RangeTo]        | —                    | [DoubleRangeTo]        |
 // ignore: lines_longer_than_80_chars
-/// | Unbounded   | Exclusive | [RangeTo]          | [IntRangeTo]   | [DoubleRangeTo]          |
+/// | Unbounded   | Exclusive | [RangeUntil]     | [IntRangeUntil]      | [DoubleRangeUntil]     |
 // ignore: lines_longer_than_80_chars
-/// | Unbounded   | Unbounded | [RangeFull]        | [IntRangeFull] | [DoubleRangeFull]        |
+/// | Unbounded   | Unbounded | [RangeFull]      | [IntRangeFull]       | [DoubleRangeFull]      |
+///
+/// [int] is discrete, so a bounded inclusive-end range is a constructor on the
+/// half-open [IntRange] rather than a separate class – see
+/// [IntRange.inclusive]. There is no unbounded-start inclusive-end [int] class;
+/// write `IntRangeUntil(end + 1)` instead.
 @immutable
 abstract class RangeBounds<C extends Comparable<C>> {
   const RangeBounds();
@@ -45,8 +55,8 @@ abstract class RangeBounds<C extends Comparable<C>> {
   factory RangeBounds.exclusiveOrUnbounded(C? start, C? end) =>
       AnyRange.exclusiveOrUnbounded(start, end);
   const factory RangeBounds.from(C start) = RangeFrom;
+  const factory RangeBounds.until(C end) = RangeUntil;
   const factory RangeBounds.to(C end) = RangeTo;
-  const factory RangeBounds.toInclusive(C end) = RangeToInclusive;
 
   /// The start bound of this range.
   Bound<C> get startBound;
@@ -188,7 +198,7 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
   /// bounded start.
   ///
   /// An exclusive bound is converted to an inclusive bound.
-  T? get startAsInclusive => switch (startBound) {
+  T? get startInclusive => switch (startBound) {
     InclusiveBound(value: final value) => value,
     ExclusiveBound(value: final value) => value.stepBy(1),
     UnboundedBound() => null,
@@ -198,7 +208,7 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
   /// bounded start.
   ///
   /// An inclusive bound is converted to an exclusive bound.
-  T? get startAsExclusive => switch (startBound) {
+  T? get startExclusive => switch (startBound) {
     InclusiveBound(value: final value) => value.stepBy(-1),
     ExclusiveBound(value: final value) => value,
     UnboundedBound() => null,
@@ -208,7 +218,7 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
   /// bounded end.
   ///
   /// An exclusive bound is converted to an inclusive bound.
-  T? get endAsInclusive => switch (endBound) {
+  T? get endInclusive => switch (endBound) {
     InclusiveBound(value: final value) => value,
     ExclusiveBound(value: final value) => value.stepBy(-1),
     UnboundedBound() => null,
@@ -218,7 +228,7 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
   /// bounded end.
   ///
   /// An inclusive bound is converted to an exclusive bound.
-  T? get endAsExclusive => switch (endBound) {
+  T? get endExclusive => switch (endBound) {
     InclusiveBound(value: final value) => value.stepBy(1),
     ExclusiveBound(value: final value) => value,
     UnboundedBound() => null,
@@ -632,11 +642,11 @@ extension RangeFromOfStepExtension<T extends Step<T>> on RangeFrom<T> {
   }
 }
 
-// RangeTo
+// RangeUntil
 
 /// A range ending with an exclusive bound and without a start bound.
-class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
-  const RangeTo(this.end);
+class RangeUntil<C extends Comparable<C>> extends RangeBounds<C> {
+  const RangeUntil(this.end);
 
   final C end;
 
@@ -646,14 +656,14 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
 
   @override
-  String toString() => 'RangeTo(..<$end)';
+  String toString() => 'RangeUntil(..<$end)';
 }
 
-// RangeToInclusive
+// RangeTo
 
 /// A range ending with an inclusive bound and without a start bound.
-class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
-  const RangeToInclusive(this.end);
+class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
+  const RangeTo(this.end);
 
   final C end;
 
@@ -663,7 +673,7 @@ class RangeToInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   InclusiveBound<C> get endBound => InclusiveBound(end);
 
   @override
-  String toString() => 'RangeToInclusive(..=$end)';
+  String toString() => 'RangeTo(..=$end)';
 }
 
 // Utils

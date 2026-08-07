@@ -3,6 +3,40 @@ import 'package:glados/glados.dart';
 import 'package:meta/meta.dart';
 
 void main() {
+  group('until = exclusive, to = inclusive', () {
+    test('RangeUntil excludes its end, RangeTo includes it', () {
+      expect(const RangeUntil(_Foo(5)).contains(const _Foo(4)), true);
+      expect(const RangeUntil(_Foo(5)).contains(const _Foo(5)), false);
+
+      expect(const RangeTo(_Foo(5)).contains(const _Foo(5)), true);
+      expect(const RangeTo(_Foo(5)).contains(const _Foo(6)), false);
+    });
+
+    test('the RangeBounds factories agree with the classes', () {
+      expect(const RangeBounds.until(_Foo(5)), const RangeUntil(_Foo(5)));
+      expect(const RangeBounds.to(_Foo(5)), const RangeTo(_Foo(5)));
+    });
+  });
+
+  group('RangeBoundsOfStepExtension', () {
+    test('converts bounds in both directions', () {
+      const range = Range(_Foo(0), _Foo(5));
+
+      expect(range.startInclusive, const _Foo(0));
+      expect(range.startExclusive, const _Foo(-1));
+      expect(range.endInclusive, const _Foo(4));
+      expect(range.endExclusive, const _Foo(5));
+    });
+
+    test('is null for unbounded ends', () {
+      const range = RangeFrom(_Foo(0));
+
+      expect(range.startInclusive, const _Foo(0));
+      expect(range.endInclusive, null);
+      expect(range.endExclusive, null);
+    });
+  });
+
   group('Range', () {
     Glados2(any.foo, any.positiveInt).test('length', (start, size) {
       expect(Range(start, start.stepBy(size)!).length, size);

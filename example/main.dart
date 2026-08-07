@@ -20,11 +20,11 @@ void main() {
   print('$rangeTo contains ${rangeTo.length} elements: ${rangeTo.toList()}');
   // IntRange(0..<6) contains 6 elements: [0, 1, 2, 3, 4, 5]
 
-  const intRangeTo = IntRangeTo(5);
-  print('$intRangeTo contains 0? ${intRangeTo.contains(0)}'); // true
-  print('$intRangeTo contains 2.2? ${intRangeTo.contains(2.2)}'); // false
-  print('$intRangeTo contains 4? ${intRangeTo.contains(4)}'); // true
-  print('$intRangeTo contains 5? ${intRangeTo.contains(5)}'); // false
+  const intRangeUntil = IntRangeUntil(5);
+  print('$intRangeUntil contains 0? ${intRangeUntil.contains(0)}'); // true
+  print('$intRangeUntil contains 2.2? ${intRangeUntil.contains(2.2)}'); // false
+  print('$intRangeUntil contains 4? ${intRangeUntil.contains(4)}'); // true
+  print('$intRangeUntil contains 5? ${intRangeUntil.contains(5)}'); // false
 
   // Progression
 

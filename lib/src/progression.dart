@@ -4,13 +4,17 @@ import 'package:meta/meta.dart';
 
 import '../deranged.dart';
 
-/// A progression of values of type [T], defined by a [start], [end]
-/// (exclusive), and [step].
+/// A progression of values of type [T], defined by a [start], [endInclusive],
+/// and [step].
+///
+/// Both [start] and [endInclusive] are part of the progression, though
+/// [endInclusive] is only reached if it is a whole number of [step]s away from
+/// [start].
 ///
 /// {@template deranged.Progression.empty}
-/// A progression is empty if the [start] is greater than the [end]
+/// A progression is empty if the [start] is greater than the [endInclusive]
 /// when the [step] is positive, or if the [start] is less than the
-/// [end] when the [step] is negative.
+/// [endInclusive] when the [step] is negative.
 /// {@endtemplate}
 ///
 /// See also:
@@ -18,11 +22,12 @@ import '../deranged.dart';
 /// - [IntProgression], a progression of [int] values.
 /// - [StepProgression], a progression of values that implement [Step].
 @immutable
-abstract class Progression<T> implements Iterable<T> {
-  const Progression(this.start, this.end, this.step) : assert(step != 0);
+abstract class Progression<T> with Iterable<T> {
+  const Progression(this.start, this.endInclusive, this.step)
+    : assert(step != 0);
 
   final T start;
-  final T end;
+  final T endInclusive;
   final int step;
 
   T operator [](int index) => elementAt(index);
@@ -31,17 +36,17 @@ abstract class Progression<T> implements Iterable<T> {
   bool operator ==(Object other) =>
       other is Progression<T> &&
       start == other.start &&
-      end == other.end &&
+      endInclusive == other.endInclusive &&
       step == other.step;
   @override
-  int get hashCode => Object.hash(start, end, step);
+  int get hashCode => Object.hash(start, endInclusive, step);
 
   @override
-  String toString() => 'Progression($start..<$end stepBy $step)';
+  String toString() => 'Progression($start..=$endInclusive stepBy $step)';
 }
 
-/// A [Progression] of values of type [T], defined by a [start], [end],
-/// and [step].
+/// A [Progression] of values of type [T], defined by a [start],
+/// [endInclusive], and [step].
 ///
 /// [T] must implement [Step] and [Comparable], which, together, provide the
 /// necessary operations for the progression calculations.
@@ -52,25 +57,26 @@ abstract class Progression<T> implements Iterable<T> {
 ///
 /// - [Progression], the base class for progressions.
 /// - [IntProgression], a progression of [int] values.
-class StepProgression<T extends Step<T>> extends Progression<T>
-    with Iterable<T> {
-  const StepProgression(super.start, super.end, super.step) : assert(step != 0);
+class StepProgression<T extends Step<T>> extends Progression<T> {
+  const StepProgression(super.start, super.endInclusive, super.step)
+    : assert(step != 0);
 
-  StepProgression<T> stepBy(int step) => StepProgression(start, end, step);
+  StepProgression<T> stepBy(int step) =>
+      StepProgression(start, endInclusive, step);
 
   @override
   Iterator<T> get iterator =>
       Iterable.generate(length, (i) => start.stepBy(i * step)!).iterator;
   @override
-  int get length => max(0, (start.stepsUntil(end) + step) ~/ step);
+  int get length => max(0, (start.stepsUntil(endInclusive) + step) ~/ step);
   @override
   T get last {
     if (isEmpty) throw StateError('No element');
 
-    return end.stepBy(
+    return endInclusive.stepBy(
       step > 0
-          ? -(start.stepsUntil(end) % step)
-          : end.stepsUntil(start) % -step,
+          ? -(start.stepsUntil(endInclusive) % step)
+          : endInclusive.stepsUntil(start) % -step,
     )!;
   }
 
@@ -91,16 +97,16 @@ class StepProgression<T extends Step<T>> extends Progression<T>
   bool contains(Object? element) {
     if (element is! T) return false;
     if (step > 0 &&
-        (element.compareTo(start) < 0 || element.compareTo(end) > 0)) {
+        (element.compareTo(start) < 0 || element.compareTo(endInclusive) > 0)) {
       return false;
     }
     if (step < 0 &&
-        (element.compareTo(end) < 0 || element.compareTo(start) > 0)) {
+        (element.compareTo(endInclusive) < 0 || element.compareTo(start) > 0)) {
       return false;
     }
     return start.stepsUntil(element) % step == 0;
   }
 
   @override
-  String toString() => 'StepProgression($start..=$end stepBy $step)';
+  String toString() => 'StepProgression($start..=$endInclusive stepBy $step)';
 }
