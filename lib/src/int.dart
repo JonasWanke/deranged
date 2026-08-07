@@ -74,6 +74,16 @@ class IntRange extends Range<num> with Iterable<int> {
   /// Returns whether this range contains exactly one value.
   bool get isSingle => length == 1;
 
+  /// Returns [value] limited to this range: [start] if it's smaller,
+  /// [endInclusive] if it's larger, and [value] itself otherwise.
+  ///
+  /// This range must not be empty.
+  int clamp(int value) {
+    assert(isNotEmpty, "Can't clamp to an empty range.");
+
+    return value.clamp(start, endInclusive);
+  }
+
   /// Returns this range with both bounds moved by [offset].
   IntRange shift(int offset) => IntRange(start + offset, end + offset);
 
@@ -183,6 +193,10 @@ class IntRangeUntil extends RangeUntil<num> {
   int get endInclusive => end - 1;
   @override
   int get end => super.end as int;
+
+  /// Returns [value] limited to this range: [endInclusive] if it's larger, and
+  /// [value] itself otherwise.
+  int clamp(int value) => min(value, endInclusive);
 
   /// Returns this range with its end moved by [offset].
   IntRangeUntil shift(int offset) => IntRangeUntil(end + offset);

@@ -75,6 +75,16 @@ class DoubleRangeInclusive extends RangeInclusive<num> {
   @override
   double get end => super.end as double;
 
+  /// Returns [value] limited to this range.
+  ///
+  /// This range must not be empty.
+  @override
+  double clamp(covariant double value) {
+    assert(isNotEmpty, "Can't clamp to an empty range.");
+
+    return value.clamp(start, end);
+  }
+
   /// Returns this range with both bounds moved by [offset].
   DoubleRangeInclusive shift(double offset) =>
       DoubleRangeInclusive(start + offset, end + offset);
@@ -117,6 +127,11 @@ class DoubleRangeFrom extends RangeFrom<num> {
 
   @override
   double get start => super.start as double;
+
+  /// Returns [value] limited to this range: [start] if it's smaller, and
+  /// [value] itself otherwise.
+  @override
+  double clamp(covariant double value) => value < start ? start : value;
 
   /// Returns this range with its start moved by [offset].
   DoubleRangeFrom shift(double offset) => DoubleRangeFrom(start + offset);
@@ -189,6 +204,11 @@ class DoubleRangeTo extends RangeTo<num> {
 
   @override
   double get end => super.end as double;
+
+  /// Returns [value] limited to this range: [end] if it's larger, and [value]
+  /// itself otherwise.
+  @override
+  double clamp(covariant double value) => value > end ? end : value;
 
   /// Returns this range with its end moved by [offset].
   DoubleRangeTo shift(double offset) => DoubleRangeTo(end + offset);

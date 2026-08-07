@@ -258,6 +258,17 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
     .maxLower(startBound, other.startBound),
     .minUpper(endBound, other.endBound),
   );
+
+  /// Returns [value] limited to this range.
+  ///
+  /// Unbounded ends don't limit [value]. Exclusive bounds are converted to
+  /// inclusive ones, so the result is always a value this range [contains] —
+  /// unless this range is empty, which is not allowed.
+  T clamp(T value) {
+    assert(isNotEmpty, "Can't clamp to an empty range.");
+
+    return min(max(value, startInclusive), endInclusive);
+  }
 }
 
 // AnyRange
@@ -500,6 +511,16 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   /// and end are equal.
   bool get isSingle => start == end;
 
+  /// Returns [value] limited to this range: [start] if it's smaller, [end] if
+  /// it's larger, and [value] itself otherwise.
+  ///
+  /// This range must not be empty.
+  C clamp(C value) {
+    assert(isNotEmpty, "Can't clamp to an empty range.");
+
+    return min(max(value, start), end);
+  }
+
   RangeInclusive<C> copyWith({covariant C? start, covariant C? end}) =>
       RangeInclusive(start ?? this.start, end ?? this.end);
 
@@ -692,6 +713,10 @@ class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   @override
   UnboundedBound<C> get endBound => const UnboundedBound();
 
+  /// Returns [value] limited to this range: [start] if it's smaller, and
+  /// [value] itself otherwise.
+  C clamp(C value) => max(value, start);
+
   @override
   RangeFrom<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
       RangeFrom(mapper(start));
@@ -785,6 +810,10 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get startBound => const UnboundedBound();
   @override
   InclusiveBound<C> get endBound => InclusiveBound(end);
+
+  /// Returns [value] limited to this range: [end] if it's larger, and [value]
+  /// itself otherwise.
+  C clamp(C value) => min(value, end);
 
   @override
   RangeTo<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
