@@ -16,11 +16,11 @@ sealed class Bound<C extends Comparable<C>> {
 
   const factory Bound.inclusive(C value) = InclusiveBound;
   factory Bound.inclusiveOrUnbounded(C? value) =>
-      InclusiveBound.orUnbounded(value);
+      value != null ? .inclusive(value) : const .unbounded();
 
   const factory Bound.exclusive(C value) = ExclusiveBound;
   factory Bound.exclusiveOrUnbounded(C? value) =>
-      ExclusiveBound.orUnbounded(value);
+      value != null ? .exclusive(value) : const .unbounded();
 
   const factory Bound.unbounded() = UnboundedBound;
 
@@ -107,8 +107,6 @@ sealed class Bound<C extends Comparable<C>> {
 /// - [UnboundedBound], which represents an unbounded bound.
 final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
   const InclusiveBound(this.value);
-  static Bound<C> orUnbounded<C extends Comparable<C>>(C? value) =>
-      value != null ? .inclusive(value) : const .unbounded();
 
   final C value;
 
@@ -140,8 +138,6 @@ final class InclusiveBound<C extends Comparable<C>> extends Bound<C> {
 /// - [UnboundedBound], which represents an unbounded bound.
 final class ExclusiveBound<C extends Comparable<C>> extends Bound<C> {
   const ExclusiveBound(this.value);
-  static Bound<C> orUnbounded<C extends Comparable<C>>(C? value) =>
-      value != null ? .exclusive(value) : const .unbounded();
 
   final C value;
 
