@@ -410,6 +410,14 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   /// Empty ranges have a length of zero.
   int get length => math.max(0, start.stepsUntil(end));
 
+  /// Returns this range with both bounds moved by [offset] steps, or `null` if
+  /// either bound can't be stepped that far.
+  Range<T>? shift(int offset) {
+    final start = this.start.stepBy(offset);
+    final end = this.end.stepBy(offset);
+    return start == null || end == null ? null : Range(start, end);
+  }
+
   StepProgression<T>? get reverse {
     final endInclusive = this.endInclusive;
     return endInclusive == null
@@ -445,6 +453,9 @@ extension RangeOfStepUnlimitedExtension<T extends StepUnlimited<T>>
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
   Iterable<T> get iter => stepBy(1);
+
+  /// Returns this range with both bounds moved by [offset] steps.
+  Range<T> shift(int offset) => Range(start.stepBy(offset), end.stepBy(offset));
 
   StepProgression<T> get reverse => StepProgression(endInclusive, start, -1);
 }
@@ -556,6 +567,14 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   /// Empty ranges have a length of zero.
   int get length => math.max(0, start.stepsUntil(end) + 1);
 
+  /// Returns this range with both bounds moved by [offset] steps, or `null` if
+  /// either bound can't be stepped that far.
+  RangeInclusive<T>? shift(int offset) {
+    final start = this.start.stepBy(offset);
+    final end = this.end.stepBy(offset);
+    return start == null || end == null ? null : RangeInclusive(start, end);
+  }
+
   StepProgression<T> get reverse => StepProgression(end, start, -1);
 
   T operator [](int index) {
@@ -614,6 +633,10 @@ extension RangeInclusiveOfStepUnlimitedExtension<T extends StepUnlimited<T>>
 
   /// Returns a [Range] representing a range with the same values.
   Range<T> get exclusive => Range(start, endExclusive);
+
+  /// Returns this range with both bounds moved by [offset] steps.
+  RangeInclusive<T> shift(int offset) =>
+      RangeInclusive(start.stepBy(offset), end.stepBy(offset));
 }
 
 extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>

@@ -71,6 +71,9 @@ class IntRange extends Range<num> with Iterable<int> {
 
   int operator [](int index) => elementAt(index);
 
+  /// Returns this range with both bounds moved by [offset].
+  IntRange shift(int offset) => IntRange(start + offset, end + offset);
+
   @override
   IntRange copyWith({covariant int? start, covariant int? end}) =>
       IntRange(start ?? this.start, end ?? this.end);
@@ -123,6 +126,9 @@ class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
 
   int operator [](int index) => elementAt(index);
 
+  /// Returns this range with its start moved by [offset].
+  IntRangeFrom shift(int offset) => IntRangeFrom(start + offset);
+
   @override
   RangeFrom<D> mapBounds<D extends Comparable<D>>(
     covariant D Function(int) mapper,
@@ -172,6 +178,9 @@ class IntRangeUntil extends RangeUntil<num> {
   int get endInclusive => end - 1;
   @override
   int get end => super.end as int;
+
+  /// Returns this range with its end moved by [offset].
+  IntRangeUntil shift(int offset) => IntRangeUntil(end + offset);
 
   @override
   RangeUntil<D> mapBounds<D extends Comparable<D>>(

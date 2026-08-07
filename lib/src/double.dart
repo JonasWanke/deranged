@@ -26,6 +26,9 @@ class DoubleRange extends Range<num> {
   @override
   double get end => super.end as double;
 
+  /// Returns this range with both bounds moved by [offset].
+  DoubleRange shift(double offset) => DoubleRange(start + offset, end + offset);
+
   @override
   DoubleRange copyWith({covariant double? start, covariant double? end}) =>
       DoubleRange(start ?? this.start, end ?? this.end);
@@ -71,6 +74,10 @@ class DoubleRangeInclusive extends RangeInclusive<num> {
   @override
   double get end => super.end as double;
 
+  /// Returns this range with both bounds moved by [offset].
+  DoubleRangeInclusive shift(double offset) =>
+      DoubleRangeInclusive(start + offset, end + offset);
+
   @override
   DoubleRangeInclusive copyWith({
     covariant double? start,
@@ -110,6 +117,9 @@ class DoubleRangeFrom extends RangeFrom<num> {
   @override
   double get start => super.start as double;
 
+  /// Returns this range with its start moved by [offset].
+  DoubleRangeFrom shift(double offset) => DoubleRangeFrom(start + offset);
+
   @override
   RangeFrom<D> mapBounds<D extends Comparable<D>>(
     covariant D Function(double) mapper,
@@ -143,6 +153,9 @@ class DoubleRangeUntil extends RangeUntil<num> {
   @override
   double get end => super.end as double;
 
+  /// Returns this range with its end moved by [offset].
+  DoubleRangeUntil shift(double offset) => DoubleRangeUntil(end + offset);
+
   @override
   RangeUntil<D> mapBounds<D extends Comparable<D>>(
     covariant D Function(double) mapper,
@@ -175,6 +188,9 @@ class DoubleRangeTo extends RangeTo<num> {
 
   @override
   double get end => super.end as double;
+
+  /// Returns this range with its end moved by [offset].
+  DoubleRangeTo shift(double offset) => DoubleRangeTo(end + offset);
 
   @override
   RangeTo<D> mapBounds<D extends Comparable<D>>(
