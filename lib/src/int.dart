@@ -2,6 +2,8 @@ import 'dart:math';
 
 import '../deranged.dart';
 
+// IntRangeFull
+
 /// An unbounded range of [int].
 class IntRangeFull extends RangeFull<num> {
   const IntRangeFull();
@@ -12,6 +14,8 @@ class IntRangeFull extends RangeFull<num> {
   @override
   String toString() => 'IntRangeFull(..)';
 }
+
+// IntRange
 
 /// A half-open range of [int]: start is included, end is excluded.
 ///
@@ -80,6 +84,8 @@ class IntRangeAsMapCodec extends StartEndAsMapCodec<IntRange, int> {
   IntRange create(int start, int end) => IntRange(start, end);
 }
 
+// IntRangeFrom
+
 /// A range of [int] starting from an inclusive bound and without an end bound.
 class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
   const IntRangeFrom(int super.start);
@@ -110,6 +116,19 @@ class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
   String toString() => 'IntRangeFrom($start..)';
 }
 
+/// Encodes an [IntRangeFrom] as a map with a "start" key.
+class IntRangeFromAsMapCodec
+    extends SingleBoundAsMapCodec<IntRangeFrom, int> {
+  const IntRangeFromAsMapCodec() : super(null);
+
+  @override
+  String get key => 'start';
+  @override
+  int valueOf(IntRangeFrom range) => range.start;
+  @override
+  IntRangeFrom create(int value) => IntRangeFrom(value);
+}
+
 class _IntRangeFromIterator implements Iterator<int> {
   _IntRangeFromIterator(IntRangeFrom range) : _current = range.start - 1;
 
@@ -124,6 +143,8 @@ class _IntRangeFromIterator implements Iterator<int> {
     return true;
   }
 }
+
+// IntRangeUntil
 
 /// A range of [int] ending with an exclusive bound and without a start bound.
 class IntRangeUntil extends RangeUntil<num> {
@@ -140,6 +161,19 @@ class IntRangeUntil extends RangeUntil<num> {
   String toString() => 'IntRangeUntil(..<$end)';
 }
 
+/// Encodes an [IntRangeUntil] as a map with an "end" key.
+class IntRangeUntilAsMapCodec
+    extends SingleBoundAsMapCodec<IntRangeUntil, int> {
+  const IntRangeUntilAsMapCodec() : super(null);
+
+  @override
+  String get key => 'end';
+  @override
+  int valueOf(IntRangeUntil range) => range.end;
+  @override
+  IntRangeUntil create(int value) => IntRangeUntil(value);
+}
+
 extension IntExtension on int {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   IntRange rangeUntil(int other) => IntRange(this, other);
@@ -150,6 +184,8 @@ extension IntExtension on int {
   /// Creates a range from `this` (inclusive) to `this + length` (exclusive).
   IntRange rangeWithLength(int length) => IntRange(this, this + length);
 }
+
+// IntProgression
 
 /// A [Progression] of [int] values, defined by a [start], [endInclusive], and
 /// [step].

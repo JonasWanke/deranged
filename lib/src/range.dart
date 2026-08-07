@@ -261,6 +261,37 @@ class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'AnyRange($startBound, $endBound)';
 }
 
+/// Encodes an [AnyRange] as a map with "start" and "end" keys, each holding an
+/// encoded [Bound].
+///
+/// Unlike the other range codecs, this one round-trips the *kind* of each bound
+/// as well as its value, so it can represent every range shape.
+class AnyRangeAsMapCodec<C extends Comparable<C>>
+    extends AsMapCodec<AnyRange<C>, C> {
+  const AnyRangeAsMapCodec([super.innerCodec]);
+
+  /// Codec used for the [AnyRange.startBound] and [AnyRange.endBound].
+  BoundAsMapCodec<C> get boundCodec => BoundAsMapCodec(innerCodec);
+
+  @override
+  Map<String, dynamic> encode(AnyRange<C> input) {
+    final boundCodec = this.boundCodec;
+    return {
+      'start': boundCodec.encode(input.startBound),
+      'end': boundCodec.encode(input.endBound),
+    };
+  }
+
+  @override
+  AnyRange<C> decode(Map<String, dynamic> encoded) {
+    final boundCodec = this.boundCodec;
+    return AnyRange(
+      boundCodec.decode(Map.from(encoded['start'] as Map)),
+      boundCodec.decode(Map.from(encoded['end'] as Map)),
+    );
+  }
+}
+
 // RangeFull
 
 /// An unbounded range.
@@ -608,6 +639,19 @@ extension RangeFromOfStepExtension<T extends Step<T>> on RangeFrom<T> {
   }
 }
 
+/// Encodes a [RangeFrom] as a map with a "start" key.
+class RangeFromAsMapCodec<C extends Comparable<C>>
+    extends SingleBoundAsMapCodec<RangeFrom<C>, C> {
+  const RangeFromAsMapCodec([super.innerCodec]);
+
+  @override
+  String get key => 'start';
+  @override
+  C valueOf(RangeFrom<C> range) => range.start;
+  @override
+  RangeFrom<C> create(C value) => RangeFrom(value);
+}
+
 // RangeUntil
 
 /// A range ending with an exclusive bound and without a start bound.
@@ -625,6 +669,19 @@ class RangeUntil<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeUntil(..<$end)';
 }
 
+/// Encodes a [RangeUntil] as a map with an "end" key.
+class RangeUntilAsMapCodec<C extends Comparable<C>>
+    extends SingleBoundAsMapCodec<RangeUntil<C>, C> {
+  const RangeUntilAsMapCodec([super.innerCodec]);
+
+  @override
+  String get key => 'end';
+  @override
+  C valueOf(RangeUntil<C> range) => range.end;
+  @override
+  RangeUntil<C> create(C value) => RangeUntil(value);
+}
+
 // RangeTo
 
 /// A range ending with an inclusive bound and without a start bound.
@@ -640,6 +697,19 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
 
   @override
   String toString() => 'RangeTo(..=$end)';
+}
+
+/// Encodes a [RangeTo] as a map with an "end" key.
+class RangeToAsMapCodec<C extends Comparable<C>>
+    extends SingleBoundAsMapCodec<RangeTo<C>, C> {
+  const RangeToAsMapCodec([super.innerCodec]);
+
+  @override
+  String get key => 'end';
+  @override
+  C valueOf(RangeTo<C> range) => range.end;
+  @override
+  RangeTo<C> create(C value) => RangeTo(value);
 }
 
 // Utils
