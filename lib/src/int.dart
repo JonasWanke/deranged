@@ -181,8 +181,12 @@ extension IntExtension on int {
   /// Creates a range from `this` (inclusive) to [other] (inclusive).
   IntRange rangeTo(int other) => IntRange.inclusive(this, other);
 
-  /// Creates a range from `this` (inclusive) to `this + length` (exclusive).
-  IntRange rangeWithLength(int length) => IntRange(this, this + length);
+  /// Creates a range from `this` (inclusive) to `this + length` (exclusive),
+  /// containing [length] values.
+  ///
+  /// See [StepExtension.rangeUntilWithLength] for why there's no
+  /// inclusive-end counterpart.
+  IntRange rangeUntilWithLength(int length) => IntRange(this, this + length);
 }
 
 // IntProgression
