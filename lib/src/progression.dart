@@ -110,3 +110,17 @@ class StepProgression<T extends Step<T>> extends Progression<T> {
   @override
   String toString() => 'StepProgression($start..=$endInclusive stepBy $step)';
 }
+
+/// Encodes a [StepProgression] as a map with "start", "endInclusive", and
+/// "step" keys.
+class StepProgressionAsMapCodec<T extends Step<T>>
+    extends ProgressionAsMapCodec<StepProgression<T>, T> {
+  const StepProgressionAsMapCodec([super.innerCodec]);
+
+  @override
+  (T, T, int) partsOf(StepProgression<T> progression) =>
+      (progression.start, progression.endInclusive, progression.step);
+  @override
+  StepProgression<T> create(T start, T endInclusive, int step) =>
+      StepProgression(start, endInclusive, step);
+}

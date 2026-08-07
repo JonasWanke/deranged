@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import '../deranged.dart';
-import 'codec.dart';
 
 /// An unbounded range of [int].
 class IntRangeFull extends RangeFull<num> {
@@ -72,18 +71,13 @@ class IntRange extends Range<num> with Iterable<int> {
 }
 
 /// Encodes an [IntRange] as a map with "start" and "end" keys.
-class IntRangeAsMapCodec
-    extends CodecAndJsonConverter<IntRange, Map<String, dynamic>> {
-  const IntRangeAsMapCodec();
+class IntRangeAsMapCodec extends StartEndAsMapCodec<IntRange, int> {
+  const IntRangeAsMapCodec() : super(null);
 
   @override
-  Map<String, dynamic> encode(IntRange input) => {
-    'start': input.start,
-    'end': input.end,
-  };
+  (int, int) startAndEndOf(IntRange range) => (range.start, range.end);
   @override
-  IntRange decode(Map<String, dynamic> encoded) =>
-      IntRange(encoded['start'] as int, encoded['end'] as int);
+  IntRange create(int start, int end) => IntRange(start, end);
 }
 
 /// A range of [int] starting from an inclusive bound and without an end bound.
@@ -211,4 +205,18 @@ class IntProgression extends Progression<int> {
 
   @override
   String toString() => 'IntProgression($start..=$endInclusive stepBy $step)';
+}
+
+/// Encodes an [IntProgression] as a map with "start", "endInclusive", and
+/// "step" keys.
+class IntProgressionAsMapCodec
+    extends ProgressionAsMapCodec<IntProgression, int> {
+  const IntProgressionAsMapCodec() : super(null);
+
+  @override
+  (int, int, int) partsOf(IntProgression progression) =>
+      (progression.start, progression.endInclusive, progression.step);
+  @override
+  IntProgression create(int start, int endInclusive, int step) =>
+      IntProgression(start, endInclusive, step);
 }

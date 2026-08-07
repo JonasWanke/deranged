@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
@@ -378,28 +377,13 @@ extension RangeOfStepUnlimitedExtension<T extends StepUnlimited<T>>
 
 /// Encodes a [Range] as a map with "start" and "end" keys.
 class RangeAsMapCodec<C extends Comparable<C>>
-    extends CodecAndJsonConverter<Range<C>, Map<String, dynamic>> {
-  const RangeAsMapCodec({this.innerCodec, this.encodeInner, this.decodeInner})
-    : assert(
-        innerCodec == null || (encodeInner == null && decodeInner == null),
-        'Cannot provide both innerCodec and encodeInner/decodeInner.',
-      );
-
-  final Codec<C, dynamic>? innerCodec;
-  final dynamic Function(C)? encodeInner;
-  final C Function(dynamic)? decodeInner;
+    extends StartEndAsMapCodec<Range<C>, C> {
+  const RangeAsMapCodec([super.innerCodec]);
 
   @override
-  Map<String, dynamic> encode(Range<C> input) => {
-    'start': _encode(input.start, innerCodec, encodeInner),
-    'end': _encode(input.end, innerCodec, encodeInner),
-  };
-
+  (C, C) startAndEndOf(Range<C> range) => (range.start, range.end);
   @override
-  Range<C> decode(Map<String, dynamic> encoded) => Range(
-    _decode(encoded['start'], innerCodec, decodeInner),
-    _decode(encoded['end'], innerCodec, decodeInner),
-  );
+  Range<C> create(C start, C end) => Range(start, end);
 }
 
 // RangeInclusive
@@ -576,31 +560,13 @@ extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
 
 /// Encodes a [RangeInclusive] as a map with "start" and "end" keys.
 class RangeInclusiveAsMapCodec<C extends Comparable<C>>
-    extends CodecAndJsonConverter<RangeInclusive<C>, Map<String, dynamic>> {
-  const RangeInclusiveAsMapCodec({
-    this.innerCodec,
-    this.encodeInner,
-    this.decodeInner,
-  }) : assert(
-         innerCodec == null || (encodeInner == null && decodeInner == null),
-         'Cannot provide both innerCodec and encodeInner/decodeInner.',
-       );
-
-  final Codec<C, dynamic>? innerCodec;
-  final dynamic Function(C)? encodeInner;
-  final C Function(dynamic)? decodeInner;
+    extends StartEndAsMapCodec<RangeInclusive<C>, C> {
+  const RangeInclusiveAsMapCodec([super.innerCodec]);
 
   @override
-  Map<String, dynamic> encode(RangeInclusive<C> input) => {
-    'start': _encode(input.start, innerCodec, encodeInner),
-    'end': _encode(input.end, innerCodec, encodeInner),
-  };
-
+  (C, C) startAndEndOf(RangeInclusive<C> range) => (range.start, range.end);
   @override
-  RangeInclusive<C> decode(Map<String, dynamic> encoded) => RangeInclusive(
-    _decode(encoded['start'], innerCodec, decodeInner),
-    _decode(encoded['end'], innerCodec, decodeInner),
-  );
+  RangeInclusive<C> create(C start, C end) => RangeInclusive(start, end);
 }
 
 // RangeFrom
@@ -684,32 +650,4 @@ extension ComparableExtension<C extends Comparable<C>> on C {
 
   /// Creates a range from `this` (inclusive) to [other] (inclusive).
   RangeInclusive<C> rangeTo(C other) => RangeInclusive(this, other);
-}
-
-dynamic _encode<C>(
-  C input,
-  Codec<C, dynamic>? innerCodec,
-  dynamic Function(C)? encodeInner,
-) {
-  if (innerCodec case final innerCodec?) {
-    return innerCodec.encode(input);
-  } else if (encodeInner case final encodeInner?) {
-    return encodeInner(input);
-  } else {
-    return input;
-  }
-}
-
-C _decode<C>(
-  dynamic encoded,
-  Codec<C, dynamic>? innerCodec,
-  C Function(dynamic)? decodeInner,
-) {
-  if (innerCodec case final innerCodec?) {
-    return innerCodec.decode(encoded);
-  } else if (decodeInner case final decodeInner?) {
-    return decodeInner(encoded);
-  } else {
-    return encoded as C;
-  }
 }

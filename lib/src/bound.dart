@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../deranged.dart';
+import 'codec.dart';
 import 'utils.dart' as utils;
 
 /// One end of a range.
@@ -184,4 +185,35 @@ final class UnboundedBound<C extends Comparable<C>> extends Bound<C> {
 
   @override
   String toString() => 'UnboundedBound';
+}
+
+/// Encodes a [Bound] as a map with a "type" key (one of "inclusive",
+/// "exclusive", or "unbounded") and, unless unbounded, a "value" key.
+class BoundAsMapCodec<C extends Comparable<C>> extends AsMapCodec<Bound<C>, C> {
+  const BoundAsMapCodec([super.innerCodec]);
+
+  static const _inclusive = 'inclusive';
+  static const _exclusive = 'exclusive';
+  static const _unbounded = 'unbounded';
+
+  @override
+  Map<String, dynamic> encode(Bound<C> input) => switch (input) {
+    InclusiveBound(value: final value) => {
+      'type': _inclusive,
+      'value': encodeValue(value),
+    },
+    ExclusiveBound(value: final value) => {
+      'type': _exclusive,
+      'value': encodeValue(value),
+    },
+    UnboundedBound() => {'type': _unbounded},
+  };
+
+  @override
+  Bound<C> decode(Map<String, dynamic> encoded) => switch (encoded['type']) {
+    _inclusive => InclusiveBound(decodeValue(encoded['value'])),
+    _exclusive => ExclusiveBound(decodeValue(encoded['value'])),
+    _unbounded => const UnboundedBound(),
+    final type => throw FormatException('Unknown bound type: $type', encoded),
+  };
 }
