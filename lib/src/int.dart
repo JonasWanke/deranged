@@ -9,6 +9,11 @@ class IntRangeFull extends RangeFull<num> {
   const IntRangeFull();
 
   @override
+  RangeFull<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(int) mapper,
+  ) => const RangeFull();
+
+  @override
   bool contains(Object? value) => value is int;
 
   @override
@@ -67,6 +72,11 @@ class IntRange extends Range<num> with Iterable<int> {
   int operator [](int index) => elementAt(index);
 
   @override
+  Range<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(int) mapper,
+  ) => Range(mapper(start), mapper(end));
+
+  @override
   bool contains(Object? element) =>
       element is int && start <= element && element < end;
 
@@ -108,6 +118,11 @@ class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
   }
 
   int operator [](int index) => elementAt(index);
+
+  @override
+  RangeFrom<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(int) mapper,
+  ) => RangeFrom(mapper(start));
 
   @override
   bool contains(Object? element) => element is int && start <= element;
@@ -153,6 +168,11 @@ class IntRangeUntil extends RangeUntil<num> {
   int get endInclusive => end - 1;
   @override
   int get end => super.end as int;
+
+  @override
+  RangeUntil<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(int) mapper,
+  ) => RangeUntil(mapper(end));
 
   @override
   bool contains(Object? value) => value is int && value < end;

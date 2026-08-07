@@ -180,6 +180,24 @@ abstract class RangeBounds<C extends Comparable<C>> {
     return startMatches && endMatches;
   }
 
+  /// Returns a range of the same shape with every bound value mapped using
+  /// [mapper].
+  ///
+  /// [mapper] must be monotonically increasing, i.e., preserve the order of
+  /// values. Otherwise, the resulting range's bounds end up swapped.
+  ///
+  /// This is not called `map` because [IntRange] & co. also implement
+  /// [Iterable], whose [Iterable.map] maps the range's *elements* rather than
+  /// its bounds.
+  RangeBounds<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper);
+
+  /// Returns a range of the same shape with every bound value cast to [D].
+  ///
+  /// This is not called `cast` because [IntRange] & co. also implement
+  /// [Iterable], whose [Iterable.cast] casts the range's *elements* rather than
+  /// its bounds.
+  RangeBounds<D> castBounds<D extends Comparable<D>>();
+
   @override
   bool operator ==(Object other) =>
       other is RangeBounds<C> &&
@@ -258,6 +276,13 @@ class AnyRange<C extends Comparable<C>> extends RangeBounds<C> {
   final Bound<C> endBound;
 
   @override
+  AnyRange<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
+      AnyRange(startBound.map(mapper), endBound.map(mapper));
+  @override
+  AnyRange<D> castBounds<D extends Comparable<D>>() =>
+      AnyRange(startBound.cast(), endBound.cast());
+
+  @override
   String toString() => 'AnyRange($startBound, $endBound)';
 }
 
@@ -304,6 +329,12 @@ class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get endBound => const UnboundedBound();
 
   @override
+  RangeFull<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
+      const RangeFull();
+  @override
+  RangeFull<D> castBounds<D extends Comparable<D>>() => const RangeFull();
+
+  @override
   String toString() => 'RangeFull(..)';
 }
 
@@ -327,6 +358,12 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
   InclusiveBound<C> get startBound => InclusiveBound(start);
   @override
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
+
+  @override
+  Range<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
+      Range(mapper(start), mapper(end));
+  @override
+  Range<D> castBounds<D extends Comparable<D>>() => Range(start as D, end as D);
 
   @override
   String toString() => 'Range($start..<$end)';
@@ -442,6 +479,13 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   /// Returns whether this range contains only a single value, i.e., its start
   /// and end are equal.
   bool get isSingle => start == end;
+
+  @override
+  RangeInclusive<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
+      RangeInclusive(mapper(start), mapper(end));
+  @override
+  RangeInclusive<D> castBounds<D extends Comparable<D>>() =>
+      RangeInclusive(start as D, end as D);
 
   /// Union of this and [other], i.e., the smallest range containing all values
   /// of both ranges.
@@ -614,6 +658,12 @@ class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get endBound => const UnboundedBound();
 
   @override
+  RangeFrom<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
+      RangeFrom(mapper(start));
+  @override
+  RangeFrom<D> castBounds<D extends Comparable<D>>() => RangeFrom(start as D);
+
+  @override
   String toString() => 'RangeFrom($start..)';
 }
 
@@ -666,6 +716,12 @@ class RangeUntil<C extends Comparable<C>> extends RangeBounds<C> {
   ExclusiveBound<C> get endBound => ExclusiveBound(end);
 
   @override
+  RangeUntil<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
+      RangeUntil(mapper(end));
+  @override
+  RangeUntil<D> castBounds<D extends Comparable<D>>() => RangeUntil(end as D);
+
+  @override
   String toString() => 'RangeUntil(..<$end)';
 }
 
@@ -694,6 +750,12 @@ class RangeTo<C extends Comparable<C>> extends RangeBounds<C> {
   UnboundedBound<C> get startBound => const UnboundedBound();
   @override
   InclusiveBound<C> get endBound => InclusiveBound(end);
+
+  @override
+  RangeTo<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
+      RangeTo(mapper(end));
+  @override
+  RangeTo<D> castBounds<D extends Comparable<D>>() => RangeTo(end as D);
 
   @override
   String toString() => 'RangeTo(..=$end)';

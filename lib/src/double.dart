@@ -6,6 +6,10 @@ class DoubleRangeFull extends RangeFull<num> {
   const DoubleRangeFull();
 
   @override
+  RangeFull<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(double) mapper,
+  ) => const RangeFull();
+  @override
   bool contains(Object? value) => value is double;
 
   @override
@@ -21,6 +25,11 @@ class DoubleRange extends Range<num> {
   double get start => super.start as double;
   @override
   double get end => super.end as double;
+
+  @override
+  Range<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(double) mapper,
+  ) => Range(mapper(start), mapper(end));
 
   @override
   bool contains(num value) => value is double && start <= value && value < end;
@@ -59,6 +68,11 @@ class DoubleRangeInclusive extends RangeInclusive<num> {
   double get end => super.end as double;
 
   @override
+  RangeInclusive<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(double) mapper,
+  ) => RangeInclusive(mapper(start), mapper(end));
+
+  @override
   bool contains(num value) => value is double && start <= value && value <= end;
 
   @override
@@ -85,6 +99,11 @@ class DoubleRangeFrom extends RangeFrom<num> {
 
   @override
   double get start => super.start as double;
+
+  @override
+  RangeFrom<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(double) mapper,
+  ) => RangeFrom(mapper(start));
 
   @override
   bool contains(num value) => value is double && start <= value;
@@ -115,6 +134,11 @@ class DoubleRangeUntil extends RangeUntil<num> {
   double get end => super.end as double;
 
   @override
+  RangeUntil<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(double) mapper,
+  ) => RangeUntil(mapper(end));
+
+  @override
   bool contains(Object? value) => value is double && value < end;
 
   @override
@@ -141,6 +165,11 @@ class DoubleRangeTo extends RangeTo<num> {
 
   @override
   double get end => super.end as double;
+
+  @override
+  RangeTo<D> mapBounds<D extends Comparable<D>>(
+    covariant D Function(double) mapper,
+  ) => RangeTo(mapper(end));
 
   @override
   bool contains(Object? value) => value is double && value <= end;
