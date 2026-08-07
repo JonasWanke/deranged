@@ -52,6 +52,32 @@ If there's no specific range class for the bounds you want, you can use the [`An
 > [`IntRange`] is therefore the single canonical (half-open) type, with [`IntRange.inclusive(…)`][`IntRange.inclusive`] as an alternative constructor – its length is `end - start`, empty ranges are always representable, and adjacent ranges tile without gaps.
 > [`double`] is continuous, where the two forms are *not* interchangeable, so it has both [`DoubleRange`] and [`DoubleRangeInclusive`].
 
+### Working with ranges
+
+Beyond `contains(…)`, `containsRange(…)`, and `intersects(…)`, every range supports:
+
+```dart
+0.rangeUntil(10).clamp(42);            // 9 — limits a value to the range
+0.rangeUntil(10).shift(5);             // IntRange(5..<15)
+0.rangeUntil(10).copyWith(end: 20);    // IntRange(0..<20)
+0.rangeUntil(10).copyWithBounds(       // AnyRange(0..=20)
+  endBound: const InclusiveBound(20),
+);
+0.rangeUntil(10).reverse;              // 9, 8, 7, … 0
+0.rangeUntil(1).isSingle;              // true
+```
+
+`clamp(…)` needs a bound it can land on, so it exists wherever that's well-defined: on any range whose values implement [`Step`], on [`RangeInclusive`]/[`RangeFrom`]/[`RangeTo`] for any [`Comparable`], and on the [`int`]/[`double`] equivalents.
+It's deliberately absent from [`DoubleRange`] and [`DoubleRangeUntil`]: There is no largest [`double`] below an exclusive end.
+
+`mapBounds(…)` and `castBounds(…)` convert the bound values while preserving the range's shape:
+
+```dart
+const RangeInclusive(1, 3).mapBounds((it) => it * 2); // RangeInclusive(2..=6)
+```
+
+Note that the mapper must preserve the order of values, or the resulting bounds end up swapped.
+
 ## Progressions
 
 Unlike ranges, [`Progression`]s contain only values that are multiples of a given step size.
@@ -59,6 +85,13 @@ This [`step`][`progression.step`] supports both positive and negative values.
 All progressions implement [`Iterable<T>`][`Iterable`], so you can use them in `for` loops and other iterable operations.
 
 A progression runs from [`start`][`progression.start`] to [`endInclusive`][`progression.endInclusive`] — both are part of it, though [`endInclusive`][`progression.endInclusive`] is only reached if it's a whole number of steps away from [`start`][`progression.start`].
+
+`reverse` yields the same values in the opposite order. It starts at the progression's `last` value rather than its `endInclusive`, which are only the same when `endInclusive` is a whole number of steps away from `start`:
+
+```dart
+const IntProgression(0, 9, 2);          // 0, 2, 4, 6, 8
+const IntProgression(0, 9, 2).reverse;  // 8, 6, 4, 2, 0
+```
 
 You can create a progression using [`start.rangeTo(end).stepBy(step)`][`intRange.stepBy`] or use their constructor directly:
 
