@@ -71,18 +71,56 @@ You can create a progression using [`start.rangeTo(end).stepBy(step)`][`intRange
 For types other than [`int`], you can use [`StepProgression`].
 This requires the type to implement [`Step`] and [`Comparable`].
 
+## Serialization
+
+Every concrete range and progression type has a matching `…AsMapCodec`.
+Each is a [`Codec`] and a [`JsonConverter`], so it works with both [`Codec`]-based APIs and `json_serializable`.
+
+Types that are already JSON-encodable need no configuration:
+
+```dart
+const IntRangeAsMapCodec().encode(IntRange(2, 7)); // {"start": 2, "end": 7}
+const IntProgressionAsMapCodec().encode(IntProgression(0, 10, 2));
+// {"start": 0, "endInclusive": 10, "step": 2}
+```
+
+For other types, pass an `innerCodec` for the bound values. [`FunctionBasedCodec`] saves you from declaring a [`Codec`] class:
+
+```dart
+const dateRangeCodec = RangeAsMapCodec<DateTime>(
+  FunctionBasedCodec(encode: _encodeDate, decode: _decodeDate),
+);
+
+Object? _encodeDate(DateTime it) => it.toIso8601String();
+DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
+```
+
+[`AnyRangeAsMapCodec`] is the exception to the `{"start": …, "end": …}` shape: since [`AnyRange`] supports any combination of bounds, it encodes each bound's *kind* alongside its value using [`BoundAsMapCodec`]:
+
+```json
+{"start": {"type": "exclusive", "value": 2}, "end": {"type": "unbounded"}}
+```
+
 <!-- dart -->
 
+[`Codec`]: https://api.dart.dev/dart-convert/Codec-class.html
 [`Comparable`]: https://api.dart.dev/dart-core/Comparable-class.html
 [`double`]: https://api.dart.dev/dart-core/double-class.html
 [`int`]: https://api.dart.dev/dart-core/int-class.html
 [`Iterable`]: https://api.dart.dev/dart-core/Iterable-class.html
 [`num`]: https://api.dart.dev/dart-core/num-class.html
 
+<!-- other packages -->
+
+[`JsonConverter`]: https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonConverter-class.html
+
 <!-- deranged -->
 
 [`AnyRange`]: https://pub.dev/documentation/deranged/latest/deranged/AnyRange-class.html
+[`AnyRangeAsMapCodec`]: https://pub.dev/documentation/deranged/latest/deranged/AnyRangeAsMapCodec-class.html
 [`Bound`]: https://pub.dev/documentation/deranged/latest/deranged/Bound-class.html
+[`BoundAsMapCodec`]: https://pub.dev/documentation/deranged/latest/deranged/BoundAsMapCodec-class.html
+[`FunctionBasedCodec`]: https://pub.dev/documentation/deranged/latest/deranged/FunctionBasedCodec-class.html
 [`comparableExtension.rangeTo`]: https://pub.dev/documentation/deranged/latest/deranged/ComparableExtension/rangeTo.html
 [`comparableExtension.rangeUntil`]: https://pub.dev/documentation/deranged/latest/deranged/ComparableExtension/rangeUntil.html
 [`DoubleRange`]: https://pub.dev/documentation/deranged/latest/deranged/DoubleRange-class.html
