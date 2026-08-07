@@ -145,8 +145,7 @@ class IntRangeFrom extends RangeFrom<num> with Iterable<int> {
 }
 
 /// Encodes an [IntRangeFrom] as a map with a "start" key.
-class IntRangeFromAsMapCodec
-    extends SingleBoundAsMapCodec<IntRangeFrom, int> {
+class IntRangeFromAsMapCodec extends SingleBoundAsMapCodec<IntRangeFrom, int> {
   const IntRangeFromAsMapCodec() : super(null);
 
   @override

@@ -9,6 +9,7 @@ class DoubleRangeFull extends RangeFull<num> {
   RangeFull<D> mapBounds<D extends Comparable<D>>(
     covariant D Function(double) mapper,
   ) => const RangeFull();
+
   @override
   bool contains(Object? value) => value is double;
 
