@@ -102,7 +102,7 @@ void main() {
 
     test('return the precise static type', () {
       // These only compile because each subclass narrows the base's
-      // `RangeBounds<D>` return type — the helpers accept nothing wider.
+      // `RangeBounds<D>` return type – the helpers accept nothing wider.
       expect(
         _takesRange(const Range(_Foo(1), _Foo(3)).mapBounds((it) => it)),
         const Range(_Foo(1), _Foo(3)),
@@ -120,7 +120,7 @@ void main() {
     });
 
     test('int and double ranges pass int/double to the mapper', () {
-      // The mapper's parameter is `int`/`double`, not `num` — these lambdas
+      // The mapper's parameter is `int`/`double`, not `num` – these lambdas
       // only compile because of that narrowing.
       expect(
         const IntRange(1, 3).mapBounds((it) => _Foo(it.toUnsigned(8))),
@@ -223,7 +223,7 @@ void main() {
         range.copyWithBounds(endBound: const ExclusiveBound(_Foo(9))),
         const AnyRange(InclusiveBound(_Foo(1)), ExclusiveBound(_Foo(9))),
       );
-      // It's on `RangeBounds`, so it also works for the fixed-shape ranges —
+      // It's on `RangeBounds`, so it also works for the fixed-shape ranges –
       // returning an `AnyRange`, since the shape may change.
       expect(
         const Range(
@@ -249,7 +249,7 @@ void main() {
     });
 
     test('IntProgression starts at `last`, not `endInclusive`', () {
-      // 0, 2, 4, 6, 8 — `endInclusive` is 9, but `last` is 8.
+      // 0, 2, 4, 6, 8 – `endInclusive` is 9, but `last` is 8.
       expect(const IntProgression(0, 9, 2).reverse.toList(), [8, 6, 4, 2, 0]);
       expect(const IntProgression(0, 10, 2).reverse.toList(), [
         10,

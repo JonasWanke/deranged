@@ -182,7 +182,7 @@ void main() {
     const range = IntRange(2, 7);
 
     // `toJson`/`fromJson` come from `JsonConverter`, `encoder`/`decoder` from
-    // `Codec` — both must agree with `encode`/`decode`.
+    // `Codec` – both must agree with `encode`/`decode`.
     expect(codec.toJson(range), codec.encode(range));
     expect(codec.fromJson(codec.toJson(range)), range);
     expect(codec.encoder.convert(range), codec.encode(range));

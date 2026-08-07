@@ -74,7 +74,7 @@ abstract class AsMapCodec<S extends Object, C extends Object>
 
   /// Codec for the contained values.
   ///
-  /// If this is `null`, values are passed through unchanged — which is what you
+  /// If this is `null`, values are passed through unchanged – which is what you
   /// want for types that are already JSON-encodable, such as [int] and
   /// [double].
   final Codec<C, Object?>? innerCodec;
