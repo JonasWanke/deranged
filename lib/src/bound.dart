@@ -82,6 +82,12 @@ sealed class Bound<C extends Comparable<C>> {
   /// Whether this is an [UnboundedBound].
   bool get isUnbounded => !isBounded;
 
+  C? get valueOrNull => switch (this) {
+    InclusiveBound(value: final value) => value,
+    ExclusiveBound(value: final value) => value,
+    UnboundedBound() => null,
+  };
+
   /// Map the value of this bound using [mapper].
   Bound<D> map<D extends Comparable<D>>(D Function(C) mapper);
 
