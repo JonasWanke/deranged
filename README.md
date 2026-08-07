@@ -68,8 +68,50 @@ You can create a progression using [`start.rangeTo(end).stepBy(step)`][`intRange
 // Equivalent: `IntProgression(10, 0, -2)`
 ```
 
-For types other than [`int`], you can use [`StepProgression`].
-This requires the type to implement [`Step`] and [`Comparable`].
+For types other than [`int`], you can mix in [`Step`] and use [`StepProgression`].
+
+## Implementing `Step`
+
+The generic ranges only need [`Comparable`] for [`contains(…)`][`rangeBounds.contains`] and friends.
+Anything that walks a range one value at a time – iterating, [`length`][`rangeInclusiveOfStepExtension.length`], indexing, [`reverse`][`rangeInclusiveOfStepExtension.reverse`], progressions, and converting between inclusive and exclusive bounds – additionally needs to know each value's successor and predecessor.
+That's [`Step`]:
+
+```dart
+class Chapter with Step<Chapter> {
+  const Chapter(this.number);
+
+  final int number;
+
+  @override
+  Chapter? stepBy(int count) {
+    final result = number + count;
+    return result >= 1 ? Chapter(result) : null; // no chapter before the first
+  }
+  @override
+  int stepsUntil(Chapter other) => other.number - number;
+  @override
+  int compareTo(Chapter other) => number.compareTo(other.number);
+
+  // `==` and `hashCode` must be value-based – range values are compared a lot.
+  @override
+  bool operator ==(Object other) => other is Chapter && number == other.number;
+  @override
+  int get hashCode => number.hashCode;
+}
+```
+
+Three members carry the contract:
+
+- `stepBy(count)` returns the value `count` steps away, or `null` if there is none. It must be consistent with `stepsUntil(…)`: `a.stepBy(a.stepsUntil(b)) == b`.
+- `stepsUntil(other)` returns how many steps `other` is away, negative if it comes first.
+- `compareTo(other)` must order values the same way `stepBy(…)` walks them.
+
+Mix in [`StepUnlimited`] instead when your type has no first or last value.
+It narrows `stepBy(…)` to a non-nullable return, so the range API stops handing you nullable results.
+
+This is also the workaround for [`int`] not being able to implement [`Step`] itself (see the note above): wrap it in a type of your own, which usually models the domain better anyway.
+
+See [`example/main.dart`][`example`] for the full, runnable version, and the sibling [Chrono] package for a real-world set – its `Date`, `Year`, `YearMonth`, and `YearWeek` mix in [`StepUnlimited`], while its bounded `Weekday` mixes in [`Step`].
 
 ## Serialization
 
@@ -114,6 +156,11 @@ DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
 
 [`JsonConverter`]: https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonConverter-class.html
 
+<!-- other -->
+
+[Chrono]: https://github.com/JonasWanke/chrono
+[`example`]: https://github.com/JonasWanke/deranged/blob/main/example/main.dart
+
 <!-- deranged -->
 
 [`AnyRange`]: https://pub.dev/documentation/deranged/latest/deranged/AnyRange-class.html
@@ -142,12 +189,16 @@ DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
 [`progression.step`]: https://pub.dev/documentation/deranged/latest/deranged/Progression/step.html
 [`Progression`]: https://pub.dev/documentation/deranged/latest/deranged/Progression-class.html
 [`Range`]: https://pub.dev/documentation/deranged/latest/deranged/Range-class.html
+[`rangeBounds.contains`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds/contains.html
 [`RangeBounds`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds-class.html
 [`RangeFrom`]: https://pub.dev/documentation/deranged/latest/deranged/RangeFrom-class.html
 [`RangeFull`]: https://pub.dev/documentation/deranged/latest/deranged/RangeFull-class.html
 [`RangeInclusive`]: https://pub.dev/documentation/deranged/latest/deranged/RangeInclusive-class.html
+[`rangeInclusiveOfStepExtension.length`]: https://pub.dev/documentation/deranged/latest/deranged/RangeInclusiveOfStepExtension/length.html
+[`rangeInclusiveOfStepExtension.reverse`]: https://pub.dev/documentation/deranged/latest/deranged/RangeInclusiveOfStepExtension/reverse.html
 [`RangeTo`]: https://pub.dev/documentation/deranged/latest/deranged/RangeTo-class.html
 [`RangeUntil`]: https://pub.dev/documentation/deranged/latest/deranged/RangeUntil-class.html
-[`Step`]: https://pub.dev/documentation/deranged/latest/deranged/Step-class.html
+[`Step`]: https://pub.dev/documentation/deranged/latest/deranged/Step-mixin.html
 [`StepProgression`]: https://pub.dev/documentation/deranged/latest/deranged/StepProgression-class.html
+[`StepUnlimited`]: https://pub.dev/documentation/deranged/latest/deranged/StepUnlimited-mixin.html
 [`UnboundedBound`]: https://pub.dev/documentation/deranged/latest/deranged/UnboundedBound-class.html
