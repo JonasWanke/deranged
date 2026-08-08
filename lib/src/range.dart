@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../deranged.dart';
 import 'codec.dart';
+import 'range_set.dart';
 import 'utils.dart';
 
 // RangeBounds
@@ -179,6 +180,32 @@ abstract class RangeBounds<C extends Comparable<C>> {
     };
     return startMatches && endMatches;
   }
+
+  /// Union of this and [other], i.e., a [RangeSet] describing every value in
+  /// either range.
+  ///
+  /// Gaps are preserved: the union of 0..=2 and 4..=6 is a set of two ranges.
+  /// For the smallest single range covering both, use [span].
+  RangeSet<C> operator |(RangeBounds<C> other) => .of([this, other]);
+
+  /// Difference of this and [other], i.e., a [RangeSet] describing every value
+  /// in this range but not in [other].
+  ///
+  /// Removing values from the middle of a range splits it in two, so the
+  /// result is a [RangeSet] rather than a single range.
+  RangeSet<C> operator -(RangeBounds<C> other) =>
+      RangeSet.single(this) - .single(other);
+
+  /// Smallest single range containing all values of this and [other].
+  ///
+  /// Unlike [operator |], this bridges gaps: the span of 0..=2 and 4..=6 also
+  /// contains 3.
+  AnyRange<C> span(RangeBounds<C> other) => AnyRange(
+    compareStartBounds(startBound, other.startBound) <= 0
+        ? startBound
+        : other.startBound,
+    compareEndBounds(endBound, other.endBound) >= 0 ? endBound : other.endBound,
+  );
 
   AnyRange<C> copyWithBounds({Bound<C>? startBound, Bound<C>? endBound}) =>
       AnyRange(startBound ?? this.startBound, endBound ?? this.endBound);
@@ -531,20 +558,6 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   RangeInclusive<D> castBounds<D extends Comparable<D>>() =>
       RangeInclusive(start as D, end as D);
 
-  /// Union of this and [other], i.e., the smallest range containing all values
-  /// of both ranges.
-  ///
-  /// For example, the union of the ranges 0..=2 and 1..=3 is the range 0..=3.
-  ///
-  /// Note that this method does not check whether the two ranges actually
-  /// intersect. For example, the union of the ranges 0..=2 and 4..=6 is the
-  /// range 0..=6, even though the two ranges have no values in common.
-  RangeInclusive<C> operator |(RangeInclusive<C>? other) {
-    return other == null
-        ? this
-        : RangeInclusive(min(start, other.start), max(end, other.end));
-  }
-
   /// Intersection of this and [other], i.e., the largest range containing only
   /// values of both ranges.
   ///
@@ -665,13 +678,21 @@ extension RangeInclusiveOfStepUnlimitedExtension<T extends StepUnlimited<T>>
 
 extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
     on Iterable<RangeInclusive<C>> {
-  /// The union of all contained [RangeInclusive]s.
+  /// The smallest [RangeInclusive] containing all contained ranges, or `null`
+  /// if there are none.
   ///
-  /// See [RangeInclusive.|] for details.
-  RangeInclusive<C>? get union => fold(
+  /// This bridges the gaps between them. For the union, which keeps the gaps,
+  /// use [IterableOfRangeBoundsExtension.asRangeSet].
+  ///
+  /// See [RangeBounds.span] for details.
+  RangeInclusive<C>? get span => fold(
     null,
-    (previousValue, element) =>
-        previousValue == null ? element : previousValue | element,
+    (previousValue, element) => previousValue == null
+        ? element
+        : RangeInclusive(
+            min(previousValue.start, element.start),
+            max(previousValue.end, element.end),
+          ),
   );
 
   /// The intersection of all contained [RangeInclusive]s.

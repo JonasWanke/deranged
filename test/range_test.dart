@@ -64,19 +64,29 @@ void main() {
       expect(RangeInclusive(start.stepBy(size)!, start).length, 0);
     });
 
-    test('union & intersection', () {
+    test('span & intersection', () {
       const a = RangeInclusive(_Foo(0), _Foo(2));
       const b = RangeInclusive(_Foo(1), _Foo(3));
       const c = RangeInclusive(_Foo(4), _Foo(6));
 
-      expect(a | b, const RangeInclusive(_Foo(0), _Foo(3)));
+      expect(
+        a.span(b),
+        const AnyRange(InclusiveBound(_Foo(0)), InclusiveBound(_Foo(3))),
+      );
+      // `span` bridges the gap, `|` keeps it.
+      expect(
+        a.span(c),
+        const AnyRange(InclusiveBound(_Foo(0)), InclusiveBound(_Foo(6))),
+      );
+      expect((a | c).ranges.length, 2);
+
       expect(a & b, const RangeInclusive(_Foo(1), _Foo(2)));
       expect(a & c, null);
 
-      expect([a, b, c].union, const RangeInclusive(_Foo(0), _Foo(6)));
+      expect([a, b, c].span, const RangeInclusive(_Foo(0), _Foo(6)));
       expect([a, b].intersection, const RangeInclusive(_Foo(1), _Foo(2)));
       expect([a, c].intersection, null);
-      expect(<RangeInclusive<_Foo>>[].union, null);
+      expect(<RangeInclusive<_Foo>>[].span, null);
       expect(<RangeInclusive<_Foo>>[].intersection, null);
     });
   });

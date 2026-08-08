@@ -78,13 +78,48 @@ const RangeInclusive(1, 3).mapBounds((it) => it * 2); // RangeInclusive(2..=6)
 
 Note that the mapper must preserve the order of values, or the resulting bounds end up swapped.
 
+## Range sets
+
+A single range can't describe values with a gap in the middle, so removing part of a range, or uniting two that don't touch, produces a [`RangeSet`]:
+
+```dart
+IntRange(0, 3) | IntRange(7, 10);  // RangeSet{0..<3, 7..<10}
+IntRange(0, 10) - IntRange(3, 5);  // RangeSet{0..<3, 5..<10}
+IntRange(0, 3).span(IntRange(7, 10)); // AnyRange(0..<10) (bridges the gap)
+```
+
+[`operator |`][`rangeBounds.|`] is the true union and keeps gaps; [`span(…)`][`rangeBounds.span`] is the smallest single range covering both.
+[`RangeSet`] itself supports the full set algebra as the bitwise operators – [`|`][`rangeSet.|`] union, [`&`][`rangeSet.&`] intersection, [`-`][`rangeSet.-`] difference, and [`~`][`rangeSet.~`] complement:
+
+```dart
+final set = RangeSet.of([IntRange(0, 5), IntRange(10, 15)]);
+
+set.contains(7);                        // false
+~set;                                   // RangeSet{..<0, 5..<10, 15..}
+set & RangeSet.single(IntRange(3, 12)); // RangeSet{3..<5, 10..<12}
+```
+
+The contained [`ranges`][`rangeSet.ranges`] are always normalized: A set drops empty ranges, merges overlapping and adjoining ones, and sorts the rest.
+Two sets are equal exactly when they describe the same values, however they were built.
+
+Adjoining is decided from the bounds alone, so `0..<5` and `5..<10` merge but `0..=4` and `5..=9` don't – nothing there knows that no [`int`] lies between 4 and 5.
+Supplying that knowledge closes those gaps too:
+
+```dart
+fooSet.coalesced;         // for types implementing `Step`
+intSet.coalescedAsInts;   // for `RangeSet<num>` holding `int` ranges
+set.coalescedBy(next);    // for anything else
+```
+
+[`coalescedAsInts`][`rangeSet.coalescedAsInts`] is spelled out rather than named `coalesced` because a [`RangeSet<num>`][`RangeSet`] can just as well hold [`double`] ranges ([`IntRange`] and [`DoubleRange`] are both [`Range<num>`][`Range`]) and stepping a [`double`] set by one would be wrong.
+
 ## Progressions
 
 Unlike ranges, [`Progression`]s contain only values that are multiples of a given step size.
 This [`step`][`progression.step`] supports both positive and negative values.
 All progressions implement [`Iterable<T>`][`Iterable`], so you can use them in `for` loops and other iterable operations.
 
-A progression runs from [`start`][`progression.start`] to [`endInclusive`][`progression.endInclusive`] — both are part of it, though [`endInclusive`][`progression.endInclusive`] is only reached if it's a whole number of steps away from [`start`][`progression.start`].
+A progression runs from [`start`][`progression.start`] to [`endInclusive`][`progression.endInclusive`] – both are part of it, though [`endInclusive`][`progression.endInclusive`] is only reached if it's a whole number of steps away from [`start`][`progression.start`].
 
 `reverse` yields the same values in the opposite order. It starts at the progression's `last` value rather than its `endInclusive`, which are only the same when `endInclusive` is a whole number of steps away from `start`:
 
@@ -221,6 +256,15 @@ DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
 [`progression.start`]: https://pub.dev/documentation/deranged/latest/deranged/Progression/start.html
 [`progression.step`]: https://pub.dev/documentation/deranged/latest/deranged/Progression/step.html
 [`Progression`]: https://pub.dev/documentation/deranged/latest/deranged/Progression-class.html
+[`rangeBounds.span`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds/span.html
+[`rangeBounds.|`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds/operator_bitwise_or.html
+[`rangeSet.&`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/operator_bitwise_and.html
+[`rangeSet.-`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/operator_minus.html
+[`rangeSet.coalescedAsInts`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSetOfIntExtension/coalescedAsInts.html
+[`rangeSet.ranges`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/ranges.html
+[`rangeSet.|`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/operator_bitwise_or.html
+[`rangeSet.~`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/operator_unary_bitwise_negate.html
+[`RangeSet`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet-class.html
 [`Range`]: https://pub.dev/documentation/deranged/latest/deranged/Range-class.html
 [`rangeBounds.contains`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds/contains.html
 [`RangeBounds`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds-class.html
