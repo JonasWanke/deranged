@@ -79,7 +79,7 @@ void main() {
       final set = _set([const IntRange(3, 5), const IntRangeFull()]);
 
       expect(set.ranges.length, 1);
-      expect(set.ranges.single.isUnbounded, true);
+      expect(set.ranges.single.isFull, true);
     });
   });
 
@@ -90,7 +90,7 @@ void main() {
 
       expect(union.ranges.length, 2);
       expect(_values(union), [0, 1, 2, 7, 8, 9]);
-      expect(union.span, const AnyRange<num>(.inclusive(0), .exclusive(10)));
+      expect(union.bounds, const AnyRange<num>(.inclusive(0), .exclusive(10)));
     });
 
     test('&', () {
@@ -166,16 +166,86 @@ void main() {
     });
   });
 
+  group('RangeLike mixes ranges and sets', () {
+    final set = _set([const IntRange(0, 5), const IntRange(10, 15)]);
+    const range = IntRange(3, 12);
+
+    test('the operators accept either side', () {
+      expect(_values(range | set), [for (var i = 0; i < 15; i++) i]);
+      expect(_values(set | range), _values(range | set));
+      expect(_values(range & set), [3, 4, 10, 11]);
+      expect(_values(set & range), _values(range & set));
+      expect(_values(range - set), [5, 6, 7, 8, 9]);
+      expect(_values(set - range), [0, 1, 2, 12, 13, 14]);
+    });
+
+    test('~ works on a plain range', () {
+      expect(
+        ~const IntRange(0, 5),
+        _set([const IntRangeUntil(0), const IntRangeFrom(5)]),
+      );
+      expect(_values(~const IntRange(0, 5)), [
+        for (var i = -20; i < 0; i++) i,
+        for (var i = 5; i <= 20; i++) i,
+      ]);
+    });
+
+    test('queries accept either side', () {
+      expect(range.intersects(set), true);
+      expect(set.intersects(range), true);
+      expect(const IntRange(6, 9).intersects(set), false);
+      expect(set.intersects(const IntRange(6, 9)), false);
+
+      expect(set.containsAll(const IntRange(1, 4)), true);
+      expect(const IntRangeFull().containsAll(set), true);
+      expect(const IntRange(0, 5).containsAll(set), false);
+    });
+
+    test('bounds and span', () {
+      expect(set.bounds, const AnyRange<num>(.inclusive(0), .exclusive(15)));
+      expect(
+        const IntRange(0, 3).bounds,
+        const AnyRange<num>(.inclusive(0), .exclusive(3)),
+      );
+      // An empty range describes no values, so it has no covering range.
+      expect(const IntRange(5, 3).bounds, null);
+
+      expect(
+        const IntRange(0, 3).span(const IntRange(7, 10)),
+        const AnyRange<num>(.inclusive(0), .exclusive(10)),
+      );
+      // Now works between a range and a set, in both directions.
+      expect(
+        set.span(const IntRange(20, 30)),
+        const AnyRange<num>(.inclusive(0), .exclusive(30)),
+      );
+      expect(
+        const IntRange(20, 30).span(set),
+        set.span(const IntRange(20, 30)),
+      );
+      // An empty operand contributes nothing.
+      expect(
+        const IntRange(5, 3).span(const IntRange(0, 2)),
+        const IntRange(0, 2).bounds,
+      );
+    });
+
+    test('RangeSet.of accepts sets as well as ranges', () {
+      expect(RangeSet.of([set, range]), set | range);
+      expect([set, range].asRangeSet, set | range);
+    });
+  });
+
   group('queries', () {
     final set = _set([const IntRange(0, 5), const IntRange(10, 15)]);
 
     test('containsRange', () {
-      expect(set.containsRange(const IntRange(1, 4)), true);
-      expect(set.containsRange(const IntRange(0, 5)), true);
+      expect(set.containsAll(const IntRange(1, 4)), true);
+      expect(set.containsAll(const IntRange(0, 5)), true);
       // Spans the gap, so it isn't contained even though both ends are.
-      expect(set.containsRange(const IntRange(4, 11)), false);
-      expect(set.containsRange(const IntRange(6, 8)), false);
-      expect(set.containsRange(const IntRange(5, 5)), true); // empty
+      expect(set.containsAll(const IntRange(4, 11)), false);
+      expect(set.containsAll(const IntRange(6, 8)), false);
+      expect(set.containsAll(const IntRange(5, 5)), true); // empty
     });
 
     test('intersects', () {
@@ -184,8 +254,27 @@ void main() {
       expect(set.intersects(const IntRangeFull()), true);
     });
 
-    test('span is null for an empty set', () {
-      expect(const RangeSet<num>.empty().span, null);
+    test('isFull means "describes every value"', () {
+      expect(RangeSet<num>.full().isFull, true);
+      expect(const IntRangeFull().isFull, true);
+
+      expect(const RangeSet<num>.empty().isFull, false);
+      expect(set.isFull, false);
+      // Unbounded in both directions, but with a gap, so not full. This is
+      // exactly why it isn't called `isUnbounded`.
+      final gapped = _set([const IntRangeUntil(0), const IntRangeFrom(5)]);
+      expect(gapped.ranges.first.startBound.isUnbounded, true);
+      expect(gapped.ranges.last.endBound.isUnbounded, true);
+      expect(gapped.bounds!.isFull, true);
+      expect(gapped.isFull, false);
+
+      // Complementing swaps it with `isEmpty`.
+      expect((~const RangeSet<num>.empty()).isFull, true);
+      expect((~RangeSet<num>.full()).isEmpty, true);
+    });
+
+    test('bounds is null for an empty set', () {
+      expect(const RangeSet<num>.empty().bounds, null);
     });
   });
 
@@ -228,6 +317,17 @@ void main() {
         AnyRange(InclusiveBound(_Foo(20)), ExclusiveBound(_Foo(24))),
       ]),
     );
+  });
+
+  test('castBounds', () {
+    final set = _set([const IntRange(0, 3), const IntRange(10, 12)]);
+
+    expect(set.castBounds<num>(), set);
+    expect(set.castBounds<num>().contains(1), true);
+    expect(set.castBounds<num>().contains(5), false);
+
+    // Casting to a type the values aren't throws, as it does for one range.
+    expect(set.castBounds<_Foo>, throwsA(isA<TypeError>()));
   });
 
   group('coalesced', () {

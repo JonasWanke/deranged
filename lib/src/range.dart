@@ -46,7 +46,7 @@ import 'utils.dart';
 /// [IntRange.inclusive]. There is no unbounded-start inclusive-end [int] class;
 /// write `IntRangeUntil(end + 1)` instead.
 @immutable
-abstract class RangeBounds<C extends Comparable<C>> {
+abstract class RangeBounds<C extends Comparable<C>> extends RangeLike<C> {
   const RangeBounds();
 
   const factory RangeBounds.full() = RangeFull;
@@ -64,7 +64,7 @@ abstract class RangeBounds<C extends Comparable<C>> {
   /// The end bound of this range.
   Bound<C> get endBound;
 
-  /// Returns whether this range is empty, i.e., contains no values.
+  @override
   bool get isEmpty {
     return switch ((startBound, endBound)) {
       (UnboundedBound(), _) || (_, UnboundedBound()) => false,
@@ -79,15 +79,10 @@ abstract class RangeBounds<C extends Comparable<C>> {
     };
   }
 
-  /// Returns whether this range is not empty, i.e., contains at least one
-  /// value.
-  bool get isNotEmpty => !isEmpty;
+  @override
+  bool get isFull => startBound is UnboundedBound && endBound is UnboundedBound;
 
-  /// Returns whether this range is unbounded, i.e., has no start or end bound.
-  bool get isUnbounded =>
-      startBound is UnboundedBound && endBound is UnboundedBound;
-
-  /// Returns whether [value] is contained in this range.
+  @override
   bool contains(C value) {
     final startMatches = switch (startBound) {
       InclusiveBound(value: final start) => start.compareTo(value) <= 0,
@@ -102,8 +97,14 @@ abstract class RangeBounds<C extends Comparable<C>> {
     return startMatches && endMatches;
   }
 
-  /// Returns whether this range contains the entire other [range].
-  bool containsRange(RangeBounds<C> range) {
+  @override
+  bool containsAll(RangeLike<C> other) {
+    if (other.isEmpty) return true;
+    if (other is! RangeBounds<C>) {
+      return other.asRangeSet.ranges.every(containsAll);
+    }
+
+    final range = other;
     final startMatches = switch (startBound) {
       InclusiveBound(value: final thisStart) => switch (range.startBound) {
         InclusiveBound(value: final otherStart) ||
@@ -141,9 +142,14 @@ abstract class RangeBounds<C extends Comparable<C>> {
     return startMatches && endMatches;
   }
 
-  /// Returns whether this and the other [range] have at least one element in
-  /// common.
-  bool intersects(RangeBounds<C> range) {
+  /// Returns whether this and [other] have at least one value in common.
+  @override
+  bool intersects(RangeLike<C> other) {
+    if (other is! RangeBounds<C>) {
+      return other.asRangeSet.ranges.any(intersects);
+    }
+
+    final range = other;
     final startMatches = switch (startBound) {
       InclusiveBound(value: final thisStart) => switch (range.endBound) {
         InclusiveBound(value: final otherEnd) =>
@@ -181,51 +187,30 @@ abstract class RangeBounds<C extends Comparable<C>> {
     return startMatches && endMatches;
   }
 
-  /// Union of this and [other], i.e., a [RangeSet] describing every value in
-  /// either range.
-  ///
-  /// Gaps are preserved: the union of 0..=2 and 4..=6 is a set of two ranges.
-  /// For the smallest single range covering both, use [span].
-  RangeSet<C> operator |(RangeBounds<C> other) => .of([this, other]);
+  @override
+  RangeSet<C> get asRangeSet => .single(this);
 
-  /// Difference of this and [other], i.e., a [RangeSet] describing every value
-  /// in this range but not in [other].
-  ///
-  /// Removing values from the middle of a range splits it in two, so the
-  /// result is a [RangeSet] rather than a single range.
-  RangeSet<C> operator -(RangeBounds<C> other) =>
-      RangeSet.single(this) - .single(other);
+  @override
+  AnyRange<C>? get bounds => isEmpty ? null : AnyRange(startBound, endBound);
 
-  /// Smallest single range containing all values of this and [other].
+  /// The largest range containing only values of both this and [other], i.e.,
+  /// their overlap. Empty if they have no values in common.
   ///
-  /// Unlike [operator |], this bridges gaps: the span of 0..=2 and 4..=6 also
-  /// contains 3.
-  AnyRange<C> span(RangeBounds<C> other) => AnyRange(
-    compareStartBounds(startBound, other.startBound) <= 0
+  /// Two ranges always overlap in a single range, so unlike [operator &] this
+  /// stays a range. It is the intersection counterpart of [span].
+  AnyRange<C> intersect(RangeBounds<C> other) => AnyRange(
+    compareStartBounds(startBound, other.startBound) >= 0
         ? startBound
         : other.startBound,
-    compareEndBounds(endBound, other.endBound) >= 0 ? endBound : other.endBound,
+    compareEndBounds(endBound, other.endBound) <= 0 ? endBound : other.endBound,
   );
 
   AnyRange<C> copyWithBounds({Bound<C>? startBound, Bound<C>? endBound}) =>
       AnyRange(startBound ?? this.startBound, endBound ?? this.endBound);
 
-  /// Returns a range of the same shape with every bound value mapped using
-  /// [mapper].
-  ///
-  /// [mapper] must be monotonically increasing, i.e., preserve the order of
-  /// values. Otherwise, the resulting range's bounds end up swapped.
-  ///
-  /// This is not called `map` because [IntRange] & co. also implement
-  /// [Iterable], whose [Iterable.map] maps the range's *elements* rather than
-  /// its bounds.
+  @override
   RangeBounds<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper);
-
-  /// Returns a range of the same shape with every bound value cast to [D].
-  ///
-  /// This is not called `cast` because [IntRange] & co. also implement
-  /// [Iterable], whose [Iterable.cast] casts the range's *elements* rather than
-  /// its bounds.
+  @override
   RangeBounds<D> castBounds<D extends Comparable<D>>();
 
   @override
@@ -280,11 +265,6 @@ extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
     ExclusiveBound(value: final value) => value,
     UnboundedBound() => null,
   };
-
-  AnyRange<T> operator &(RangeBounds<T> other) => AnyRange(
-    .maxLower(startBound, other.startBound),
-    .minUpper(endBound, other.endBound),
-  );
 
   /// Returns [value] limited to this range.
   ///
@@ -558,22 +538,6 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   RangeInclusive<D> castBounds<D extends Comparable<D>>() =>
       RangeInclusive(start as D, end as D);
 
-  /// Intersection of this and [other], i.e., the largest range containing only
-  /// values of both ranges.
-  ///
-  /// For example, the intersection of the ranges 0..=2 and 1..=3 is the range
-  /// 1..=2.
-  ///
-  /// If the two ranges have no values in common, `null` is returned. For
-  /// example, the intersection of the ranges 0..=2 and 3..=5 is `null`.
-  RangeInclusive<C>? operator &(RangeInclusive<C>? other) {
-    if (other == null) return null;
-
-    final result = RangeInclusive(max(start, other.start), min(end, other.end));
-    if (result.isEmpty) return null;
-    return result;
-  }
-
   @override
   String toString() => 'RangeInclusive($start..=$end)';
 }
@@ -682,9 +646,9 @@ extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
   /// if there are none.
   ///
   /// This bridges the gaps between them. For the union, which keeps the gaps,
-  /// use [IterableOfRangeBoundsExtension.asRangeSet].
+  /// use [IterableOfRangeLikeExtension.asRangeSet].
   ///
-  /// See [RangeBounds.span] for details.
+  /// See [RangeLike.span] for details.
   RangeInclusive<C>? get span => fold(
     null,
     (previousValue, element) => previousValue == null
@@ -695,16 +659,22 @@ extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
           ),
   );
 
-  /// The intersection of all contained [RangeInclusive]s.
+  /// The intersection of all contained [RangeInclusive]s, or `null` if they
+  /// have no value in common.
   ///
-  /// See [RangeInclusive.&] for details.
+  /// See [RangeBounds.intersect] for details.
   RangeInclusive<C>? get intersection {
     var result = firstOrNull;
     if (result == null) return null;
 
     for (final range in skip(1)) {
-      result = result! & range;
-      if (result == null) return null;
+      final overlap = result!.intersect(range);
+      if (overlap.isEmpty) return null;
+
+      result = RangeInclusive(
+        overlap.startBound.valueOrNull!,
+        overlap.endBound.valueOrNull!,
+      );
     }
     return result;
   }

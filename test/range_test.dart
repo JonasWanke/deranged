@@ -18,6 +18,24 @@ void main() {
     });
   });
 
+  test('unbounded bounds compare equal regardless of type argument', () {
+    // `const UnboundedBound()` inside a generic class can't name that class's
+    // type parameter, so every range's unbounded bound is an
+    // `UnboundedBound<Never>`. Comparing the type argument made `==`
+    // asymmetric between those and explicitly typed ones.
+    final fromRange = const RangeFull<num>().startBound;
+    const explicit = UnboundedBound<num>();
+
+    expect(fromRange == explicit, true);
+    expect(explicit == fromRange, true);
+    expect(fromRange.hashCode, explicit.hashCode);
+
+    expect(
+      const AnyRange<num>(.unbounded(), .exclusive(0)),
+      const AnyRange<num>(UnboundedBound<num>(), ExclusiveBound(0)),
+    );
+  });
+
   group('RangeBoundsOfStepExtension', () {
     test('converts bounds in both directions', () {
       const range = Range(_Foo(0), _Foo(5));
@@ -80,8 +98,14 @@ void main() {
       );
       expect((a | c).ranges.length, 2);
 
-      expect(a & b, const RangeInclusive(_Foo(1), _Foo(2)));
-      expect(a & c, null);
+      // `intersect` stays a single range, `&` produces a set.
+      expect(
+        a.intersect(b),
+        const AnyRange(InclusiveBound(_Foo(1)), InclusiveBound(_Foo(2))),
+      );
+      expect(a.intersect(c).isEmpty, true);
+      expect((a & b).bounds, a.intersect(b));
+      expect((a & c).isEmpty, true);
 
       expect([a, b, c].span, const RangeInclusive(_Foo(0), _Foo(6)));
       expect([a, b].intersection, const RangeInclusive(_Foo(1), _Foo(2)));

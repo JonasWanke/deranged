@@ -27,14 +27,13 @@ import 'codec.dart';
 /// `0..<5` and `5..<10` merge, but `0..=4` and `5..=9` don't – nothing here
 /// knows that no [int] lies between 4 and 5. For types that do know, see
 /// [RangeSetOfStepExtension.coalesced].
-@immutable
-class RangeSet<C extends Comparable<C>> {
+class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
   /// Creates a set describing the values of all given [ranges].
-  factory RangeSet.of(Iterable<RangeBounds<C>> ranges) =>
+  factory RangeSet.of(Iterable<RangeLike<C>> ranges) =>
       RangeSet._(_normalize(ranges));
 
   /// Creates a set describing the values of a single [range].
-  factory RangeSet.single(RangeBounds<C> range) => .of([range]);
+  factory RangeSet.single(RangeLike<C> range) => .of([range]);
 
   /// Creates a set describing no values at all.
   const RangeSet.empty() : ranges = const [];
@@ -49,67 +48,66 @@ class RangeSet<C extends Comparable<C>> {
   /// No two of these adjoin – otherwise, they would have been merged.
   final List<AnyRange<C>> ranges;
 
-  /// Whether this set describes no values.
+  @override
   bool get isEmpty => ranges.isEmpty;
+  @override
+  bool get isFull => ranges.length == 1 && ranges.single.isFull;
 
-  /// Whether this set describes at least one value.
-  bool get isNotEmpty => ranges.isNotEmpty;
+  @override
+  RangeSet<C> get asRangeSet => this;
 
-  /// Returns whether [value] is described by this set.
+  @override
   bool contains(C value) => ranges.any((it) => it.contains(value));
 
-  /// Returns whether every value of [range] is described by this set.
-  bool containsRange(RangeBounds<C> range) {
-    if (range.isEmpty) return true;
-
+  @override
+  bool containsAll(RangeLike<C> other) => switch (other) {
     // A range spanning two of our ranges would have to cross the gap between
     // them, so it's enough to look for a single one containing it.
-    return ranges.any((it) => it.containsRange(range));
-  }
+    RangeBounds<C>() =>
+      other.isEmpty || ranges.any((it) => it.containsAll(other)),
+    _ => other.asRangeSet.ranges.every(containsAll),
+  };
 
-  /// Returns whether this set and [range] have at least one value in common.
-  bool intersects(RangeBounds<C> range) =>
-      ranges.any((it) => it.intersects(range));
+  @override
+  bool intersects(RangeLike<C> other) =>
+      ranges.any((it) => it.intersects(other));
 
-  /// The smallest single range containing every value of this set, or `null`
-  /// if this set is empty.
-  ///
-  /// This bridges the gaps between the [ranges]. For example, the span of
-  /// `{0..=2, 8..=9}` is `0..=9`.
-  AnyRange<C>? get span =>
+  @override
+  AnyRange<C>? get bounds =>
       isEmpty ? null : AnyRange(ranges.first.startBound, ranges.last.endBound);
 
-  /// Union of this and [other], i.e., the values described by either set.
-  RangeSet<C> operator |(RangeSet<C> other) {
+  @override
+  RangeSet<C> operator |(RangeLike<C> other) {
+    final otherRanges = other.asRangeSet.ranges;
     // Both lists are already sorted, so they can be merged without sorting
     // again.
     final merged = <AnyRange<C>>[];
     var i = 0;
     var j = 0;
-    while (i < ranges.length || j < other.ranges.length) {
+    while (i < ranges.length || j < otherRanges.length) {
       final takeThis =
-          j == other.ranges.length ||
+          j == otherRanges.length ||
           (i < ranges.length &&
               compareStartBounds(
                     ranges[i].startBound,
-                    other.ranges[j].startBound,
+                    otherRanges[j].startBound,
                   ) <=
                   0);
-      merged.add(takeThis ? ranges[i++] : other.ranges[j++]);
+      merged.add(takeThis ? ranges[i++] : otherRanges[j++]);
     }
     return RangeSet._(_mergeSorted(merged));
   }
 
-  /// Intersection of this and [other], i.e., the values described by both
-  /// sets.
-  RangeSet<C> operator &(RangeSet<C> other) {
+  @override
+  RangeSet<C> operator &(RangeLike<C> other) {
+    final otherRanges = other.asRangeSet.ranges;
     // Both lists are sorted, so a single sweep suffices.
     final result = <AnyRange<C>>[];
     var i = 0;
     var j = 0;
-    while (i < ranges.length && j < other.ranges.length) {
+    while (i < ranges.length && j < otherRanges.length) {
       final a = ranges[i];
-      final b = other.ranges[j];
+      final b = otherRanges[j];
 
       final intersection = AnyRange(
         _laterStart(a.startBound, b.startBound),
@@ -134,11 +132,10 @@ class RangeSet<C extends Comparable<C>> {
   /// For example, `{0..=9} - {3..=4}` is `{0..<3, >4..=9}`: removing a range
   /// from the middle splits the remainder in two, and the new bounds exclude
   /// the values that were removed.
-  RangeSet<C> operator -(RangeSet<C> other) => this & ~other;
+  @override
+  RangeSet<C> operator -(RangeLike<C> other) => this & ~other;
 
-  /// Complement of this set, i.e., the values it does *not* describe.
-  ///
-  /// The complement of an empty set describes all values, and vice versa.
+  @override
   RangeSet<C> operator ~() {
     if (isEmpty) return .full();
 
@@ -202,12 +199,13 @@ class RangeSet<C extends Comparable<C>> {
     return RangeSet._(result);
   }
 
-  /// Returns this set with every bound value mapped using [mapper].
-  ///
-  /// [mapper] must be monotonically increasing, i.e., preserve the order of
-  /// values.
+  @override
   RangeSet<D> mapBounds<D extends Comparable<D>>(D Function(C) mapper) =>
       .of(ranges.map((it) => it.mapBounds(mapper)));
+
+  @override
+  RangeSet<D> castBounds<D extends Comparable<D>>() =>
+      .of(ranges.map((it) => it.castBounds<D>()));
 
   @override
   bool operator ==(Object other) =>
@@ -235,11 +233,11 @@ class RangeSet<C extends Comparable<C>> {
   }
 
   static List<AnyRange<C>> _normalize<C extends Comparable<C>>(
-    Iterable<RangeBounds<C>> ranges,
+    Iterable<RangeLike<C>> ranges,
   ) {
     final sorted = ranges
+        .expand(_flatten<C>)
         .where((it) => it.isNotEmpty)
-        .map((it) => AnyRange(it.startBound, it.endBound))
         .sorted((a, b) {
           final byStart = compareStartBounds(a.startBound, b.startBound);
           return byStart != 0
@@ -265,6 +263,16 @@ class RangeSet<C extends Comparable<C>> {
     }
     return result;
   }
+
+  /// The plain ranges of a [RangeLike], so that a [RangeSet] can be built from
+  /// single ranges and other sets alike.
+  static Iterable<AnyRange<C>> _flatten<C extends Comparable<C>>(
+    RangeLike<C> range,
+  ) => switch (range) {
+    RangeBounds<C>() => [AnyRange(range.startBound, range.endBound)],
+    RangeSet<C>() => range.ranges,
+    _ => range.asRangeSet.ranges,
+  };
 
   /// Whether a range ending at [end] and one starting at [start] together
   /// describe an uninterrupted stretch of values.
@@ -304,9 +312,7 @@ extension RangeSetOfStepExtension<T extends Step<T>> on RangeSet<T> {
   /// [RangeSet] normalization only looks at bound values, so it keeps
   /// `{0..=4, 5..=9}` as two ranges. For a [Step] type, nothing lies between 4
   /// and 5, so this merges them into `{0..=9}`.
-  RangeSet<T> get coalesced => coalescedBy(_next);
-
-  static T? _next<T extends Step<T>>(T value) => value.next;
+  RangeSet<T> get coalesced => coalescedBy((it) => it.next);
 }
 
 extension RangeSetOfIntExtension on RangeSet<num> {
@@ -322,15 +328,9 @@ extension RangeSetOfIntExtension on RangeSet<num> {
   RangeSet<num> get coalescedAsInts => coalescedBy((it) => it + 1);
 }
 
-extension RangeBoundsAsRangeSetExtension<C extends Comparable<C>>
-    on RangeBounds<C> {
-  /// A [RangeSet] describing the same values as this range.
-  RangeSet<C> get asRangeSet => .single(this);
-}
-
-extension IterableOfRangeBoundsExtension<C extends Comparable<C>>
-    on Iterable<RangeBounds<C>> {
-  /// A [RangeSet] describing the values of all these ranges.
+extension IterableOfRangeLikeExtension<C extends Comparable<C>>
+    on Iterable<RangeLike<C>> {
+  /// A [RangeSet] describing the values of all of these.
   RangeSet<C> get asRangeSet => .of(this);
 }
 

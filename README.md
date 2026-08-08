@@ -88,15 +88,27 @@ IntRange(0, 10) - IntRange(3, 5);  // RangeSet{0..<3, 5..<10}
 IntRange(0, 3).span(IntRange(7, 10)); // AnyRange(0..<10) (bridges the gap)
 ```
 
-[`operator |`][`rangeBounds.|`] is the true union and keeps gaps; [`span(…)`][`rangeBounds.span`] is the smallest single range covering both.
-[`RangeSet`] itself supports the full set algebra as the bitwise operators – [`|`][`rangeSet.|`] union, [`&`][`rangeSet.&`] intersection, [`-`][`rangeSet.-`] difference, and [`~`][`rangeSet.~`] complement:
+Ranges and sets share a base class, [`RangeLike`], which is where the set algebra lives.
+The operators therefore work between the two interchangeably, in either direction:
 
 ```dart
 final set = RangeSet.of([IntRange(0, 5), IntRange(10, 15)]);
 
-set.contains(7);                        // false
-~set;                                   // RangeSet{..<0, 5..<10, 15..}
-set & RangeSet.single(IntRange(3, 12)); // RangeSet{3..<5, 10..<12}
+~IntRange(0, 5);                 // RangeSet{..<0, 5..}
+IntRange(3, 12) | set;           // RangeSet{0..<15}
+set & IntRange(3, 12);           // RangeSet{3..<5, 10..<12}
+set.intersects(IntRange(3, 12)); // true
+```
+
+They mirror the bitwise operators because that's exactly what set algebra is: [`|`][`rangeLike.|`] union, [`&`][`rangeLike.&`] intersection, [`-`][`rangeLike.-`] difference, and [`~`][`rangeLike.~`] complement.
+All of them return a [`RangeSet`], since none can generally be described by a single range.
+
+When you do want one range back, [`bounds`][`rangeLike.bounds`] and [`span(…)`][`rangeLike.span`] bridge the gaps, and [`intersect(…)`][`rangeBounds.intersect`] gives the exact overlap of two ranges without building a set:
+
+```dart
+set.bounds;               // AnyRange(0..<15), covering the gaps too
+rangeA.span(rangeB);      // smallest range covering both
+rangeA.intersect(rangeB); // their overlap, empty if disjoint
 ```
 
 The contained [`ranges`][`rangeSet.ranges`] are always normalized: A set drops empty ranges, merges overlapping and adjoining ones, and sorts the rest.
@@ -256,14 +268,16 @@ DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
 [`progression.start`]: https://pub.dev/documentation/deranged/latest/deranged/Progression/start.html
 [`progression.step`]: https://pub.dev/documentation/deranged/latest/deranged/Progression/step.html
 [`Progression`]: https://pub.dev/documentation/deranged/latest/deranged/Progression-class.html
-[`rangeBounds.span`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds/span.html
-[`rangeBounds.|`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds/operator_bitwise_or.html
-[`rangeSet.&`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/operator_bitwise_and.html
-[`rangeSet.-`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/operator_minus.html
+[`rangeBounds.intersect`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds/intersect.html
+[`rangeLike.&`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike/operator_bitwise_and.html
+[`rangeLike.-`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike/operator_minus.html
+[`rangeLike.bounds`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike/bounds.html
+[`rangeLike.span`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike/span.html
+[`rangeLike.|`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike/operator_bitwise_or.html
+[`rangeLike.~`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike/operator_unary_bitwise_negate.html
+[`RangeLike`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike-class.html
 [`rangeSet.coalescedAsInts`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSetOfIntExtension/coalescedAsInts.html
 [`rangeSet.ranges`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/ranges.html
-[`rangeSet.|`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/operator_bitwise_or.html
-[`rangeSet.~`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/operator_unary_bitwise_negate.html
 [`RangeSet`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet-class.html
 [`Range`]: https://pub.dev/documentation/deranged/latest/deranged/Range-class.html
 [`rangeBounds.contains`]: https://pub.dev/documentation/deranged/latest/deranged/RangeBounds/contains.html
