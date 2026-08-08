@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
 
 import '../deranged.dart';
 import 'codec.dart';
@@ -88,7 +87,7 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
       final takeThis =
           j == otherRanges.length ||
           (i < ranges.length &&
-              compareStartBounds(
+              Bound.compareStarts(
                     ranges[i].startBound,
                     otherRanges[j].startBound,
                   ) <=
@@ -110,12 +109,12 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
       final b = otherRanges[j];
 
       final intersection = AnyRange(
-        _laterStart(a.startBound, b.startBound),
-        _earlierEnd(a.endBound, b.endBound),
+        .laterStart(a.startBound, b.startBound),
+        .earlierEnd(a.endBound, b.endBound),
       );
       if (intersection.isNotEmpty) result.add(intersection);
 
-      if (compareEndBounds(a.endBound, b.endBound) <= 0) {
+      if (Bound.compareEnds(a.endBound, b.endBound) <= 0) {
         i++;
       } else {
         j++;
@@ -145,7 +144,7 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
     // the first range can start unbounded and only the last can end that way.
     if (ranges.first.startBound is! UnboundedBound<C>) {
       result.add(
-        AnyRange(UnboundedBound<C>(), _invert(ranges.first.startBound)),
+        AnyRange(UnboundedBound<C>(), ranges.first.startBound.inverted),
       );
     }
     // The ranges neither overlap nor adjoin, so every gap between two of them
@@ -153,13 +152,13 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
     for (var i = 1; i < ranges.length; i++) {
       result.add(
         AnyRange(
-          _invert(ranges[i - 1].endBound),
-          _invert(ranges[i].startBound),
+          ranges[i - 1].endBound.inverted,
+          ranges[i].startBound.inverted,
         ),
       );
     }
     if (ranges.last.endBound is! UnboundedBound<C>) {
-      result.add(AnyRange(_invert(ranges.last.endBound), UnboundedBound<C>()));
+      result.add(AnyRange(ranges.last.endBound.inverted, UnboundedBound<C>()));
     }
 
     return RangeSet._(result);
@@ -190,7 +189,7 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
         UnboundedBound() => null,
       };
       if (widened != null &&
-          _adjoins(InclusiveBound(widened), range.startBound)) {
+          Bound.adjoins(InclusiveBound(widened), range.startBound)) {
         result.last = AnyRange(last.startBound, range.endBound);
       } else {
         result.add(range);
@@ -239,10 +238,10 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
         .expand(_flatten<C>)
         .where((it) => it.isNotEmpty)
         .sorted((a, b) {
-          final byStart = compareStartBounds(a.startBound, b.startBound);
+          final byStart = Bound.compareStarts(a.startBound, b.startBound);
           return byStart != 0
               ? byStart
-              : compareEndBounds(a.endBound, b.endBound);
+              : Bound.compareEnds(a.endBound, b.endBound);
         });
     return _mergeSorted(sorted);
   }
@@ -255,9 +254,9 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
     final result = <AnyRange<C>>[];
     for (final range in sorted) {
       final last = result.lastOrNull;
-      if (last == null || !_adjoins(last.endBound, range.startBound)) {
+      if (last == null || !Bound.adjoins(last.endBound, range.startBound)) {
         result.add(range);
-      } else if (compareEndBounds(range.endBound, last.endBound) > 0) {
+      } else if (Bound.compareEnds(range.endBound, last.endBound) > 0) {
         result.last = AnyRange(last.startBound, range.endBound);
       }
     }
@@ -273,37 +272,6 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
     RangeSet<C>() => range.ranges,
     _ => range.asRangeSet.ranges,
   };
-
-  /// Whether a range ending at [end] and one starting at [start] together
-  /// describe an uninterrupted stretch of values.
-  static bool _adjoins<C extends Comparable<C>>(Bound<C> end, Bound<C> start) {
-    if (end is UnboundedBound<C> || start is UnboundedBound<C>) return true;
-
-    final comparison = end.valueOrNull!.compareTo(start.valueOrNull!);
-    if (comparison != 0) return comparison > 0;
-
-    // Both refer to the same value: it's covered unless both bounds exclude
-    // it.
-    return end is InclusiveBound<C> || start is InclusiveBound<C>;
-  }
-
-  static Bound<C> _laterStart<C extends Comparable<C>>(
-    Bound<C> a,
-    Bound<C> b,
-  ) => compareStartBounds(a, b) >= 0 ? a : b;
-  static Bound<C> _earlierEnd<C extends Comparable<C>>(
-    Bound<C> a,
-    Bound<C> b,
-  ) => compareEndBounds(a, b) <= 0 ? a : b;
-
-  /// Turns a start bound into the end bound of everything before it, and vice
-  /// versa.
-  static Bound<C> _invert<C extends Comparable<C>>(Bound<C> bound) =>
-      switch (bound) {
-        InclusiveBound(value: final value) => ExclusiveBound(value),
-        ExclusiveBound(value: final value) => InclusiveBound(value),
-        UnboundedBound() => bound,
-      };
 }
 
 extension RangeSetOfStepExtension<T extends Step<T>> on RangeSet<T> {
@@ -332,40 +300,6 @@ extension IterableOfRangeLikeExtension<C extends Comparable<C>>
     on Iterable<RangeLike<C>> {
   /// A [RangeSet] describing the values of all of these.
   RangeSet<C> get asRangeSet => .of(this);
-}
-
-/// Compares two bounds by where a range *starting* there begins.
-///
-/// An unbounded start comes first, and among equal values an inclusive start
-/// comes before an exclusive one.
-@internal
-int compareStartBounds<C extends Comparable<C>>(Bound<C> a, Bound<C> b) {
-  if (a is UnboundedBound<C>) return b is UnboundedBound<C> ? 0 : -1;
-  if (b is UnboundedBound<C>) return 1;
-
-  final byValue = a.valueOrNull!.compareTo(b.valueOrNull!);
-  if (byValue != 0) return byValue;
-
-  final aIsInclusive = a is InclusiveBound<C>;
-  if (aIsInclusive == b is InclusiveBound<C>) return 0;
-  return aIsInclusive ? -1 : 1;
-}
-
-/// Compares two bounds by where a range *ending* there stops.
-///
-/// An unbounded end comes last, and among equal values an exclusive end comes
-/// before an inclusive one.
-@internal
-int compareEndBounds<C extends Comparable<C>>(Bound<C> a, Bound<C> b) {
-  if (a is UnboundedBound<C>) return b is UnboundedBound<C> ? 0 : 1;
-  if (b is UnboundedBound<C>) return -1;
-
-  final byValue = a.valueOrNull!.compareTo(b.valueOrNull!);
-  if (byValue != 0) return byValue;
-
-  final aIsInclusive = a is InclusiveBound<C>;
-  if (aIsInclusive == b is InclusiveBound<C>) return 0;
-  return aIsInclusive ? 1 : -1;
 }
 
 /// Encodes a [RangeSet] as a list.

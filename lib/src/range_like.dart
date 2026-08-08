@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 import '../deranged.dart';
-import 'range_set.dart';
 
 /// Anything that describes a set of values of type [C]: A single range
 /// ([RangeBounds]) or several ([RangeSet]).
@@ -68,10 +67,8 @@ abstract class RangeLike<C extends Comparable<C>> {
     if (b == null) return a;
 
     return AnyRange(
-      compareStartBounds(a.startBound, b.startBound) <= 0
-          ? a.startBound
-          : b.startBound,
-      compareEndBounds(a.endBound, b.endBound) >= 0 ? a.endBound : b.endBound,
+      .earlierStart(a.startBound, b.startBound),
+      .laterEnd(a.endBound, b.endBound),
     );
   }
 

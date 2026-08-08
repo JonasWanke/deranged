@@ -1,8 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../deranged.dart';
 import 'codec.dart';
-import 'utils.dart' as utils;
 
 /// One end of a range.
 ///
@@ -24,56 +22,87 @@ sealed class Bound<C extends Comparable<C>> {
 
   const factory Bound.unbounded() = UnboundedBound;
 
-  /// Returns the maximum of the two lower bounds [a] and [b].
-  static Bound<C> maxLower<C extends Step<C>>(Bound<C> a, Bound<C>? b) {
-    if (b == null) return a;
+  /// Whichever of the two start bounds begins earlier, i.e., describes more
+  /// values.
+  ///
+  /// See [compareStarts] for the ordering.
+  static Bound<C> earlierStart<C extends Comparable<C>>(
+    Bound<C> a,
+    Bound<C> b,
+  ) => compareStarts(a, b) <= 0 ? a : b;
 
-    return switch ((a, b)) {
-      (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
-        .inclusive(utils.max(a, b)),
-      (
-        InclusiveBound(value: final inclusive),
-        ExclusiveBound(value: final exclusive),
-      ) ||
-      (
-        ExclusiveBound(value: final exclusive),
-        InclusiveBound(value: final inclusive),
-      ) => () {
-        final exclusiveToInclusive = exclusive.stepBy(1);
-        if (exclusiveToInclusive == null) return ExclusiveBound(exclusive);
-        return InclusiveBound(utils.max(inclusive, exclusiveToInclusive));
-      }(),
-      (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
-        .exclusive(utils.max(a, b)),
-      (UnboundedBound(), final other) ||
-      (final other, UnboundedBound()) => other,
-    };
+  /// Whichever of the two start bounds begins later, i.e., describes fewer
+  /// values.
+  ///
+  /// See [compareStarts] for the ordering.
+  static Bound<C> laterStart<C extends Comparable<C>>(Bound<C> a, Bound<C> b) =>
+      compareStarts(a, b) >= 0 ? a : b;
+
+  /// Compares two bounds by where a range *starting* there begins.
+  ///
+  /// An unbounded start comes first, and among equal values an inclusive start
+  /// comes before an exclusive one, since it also describes that value.
+  static int compareStarts<C extends Comparable<C>>(Bound<C> a, Bound<C> b) {
+    if (a.isUnbounded) return b.isUnbounded ? 0 : -1;
+    if (b.isUnbounded) return 1;
+
+    final byValue = a.valueOrNull!.compareTo(b.valueOrNull!);
+    if (byValue != 0) return byValue;
+
+    final aIsInclusive = a is InclusiveBound<C>;
+    if (aIsInclusive == b is InclusiveBound<C>) return 0;
+    return aIsInclusive ? -1 : 1;
   }
 
-  /// Returns the minimum of the two upper bounds [a] and [b].
-  static Bound<C> minUpper<C extends Step<C>>(Bound<C> a, Bound<C>? b) {
-    if (b == null) return a;
+  /// Whichever of the two end bounds stops later, i.e., describes more values.
+  ///
+  /// See [compareEnds] for the ordering.
+  static Bound<C> laterEnd<C extends Comparable<C>>(Bound<C> a, Bound<C> b) =>
+      compareEnds(a, b) >= 0 ? a : b;
 
-    return switch ((a, b)) {
-      (InclusiveBound(value: final a), InclusiveBound(value: final b)) =>
-        .inclusive(utils.min(a, b)),
-      (
-        InclusiveBound(value: final inclusive),
-        ExclusiveBound(value: final exclusive),
-      ) ||
-      (
-        ExclusiveBound(value: final exclusive),
-        InclusiveBound(value: final inclusive),
-      ) => () {
-        final exclusiveToInclusive = exclusive.stepBy(-1);
-        if (exclusiveToInclusive == null) return ExclusiveBound(exclusive);
-        return InclusiveBound(utils.min(inclusive, exclusiveToInclusive));
-      }(),
-      (ExclusiveBound(value: final a), ExclusiveBound(value: final b)) =>
-        .exclusive(utils.min(a, b)),
-      (UnboundedBound(), final other) ||
-      (final other, UnboundedBound()) => other,
-    };
+  /// Whichever of the two end bounds stops earlier, i.e., describes fewer
+  /// values.
+  ///
+  /// See [compareEnds] for the ordering.
+  static Bound<C> earlierEnd<C extends Comparable<C>>(Bound<C> a, Bound<C> b) =>
+      compareEnds(a, b) <= 0 ? a : b;
+
+  /// Compares two bounds by where a range *ending* there stops.
+  ///
+  /// An unbounded end comes last, and among equal values an exclusive end
+  /// comes before an inclusive one, since it doesn't describe that value.
+  static int compareEnds<C extends Comparable<C>>(Bound<C> a, Bound<C> b) {
+    if (a.isUnbounded) return b.isUnbounded ? 0 : 1;
+    if (b.isUnbounded) return -1;
+
+    final byValue = a.valueOrNull!.compareTo(b.valueOrNull!);
+    if (byValue != 0) return byValue;
+
+    final aIsInclusive = a is InclusiveBound<C>;
+    if (aIsInclusive == b is InclusiveBound<C>) return 0;
+    return aIsInclusive ? 1 : -1;
+  }
+
+  /// Whether a range ending at [end] and one starting at [start] together
+  /// describe an uninterrupted stretch of values.
+  ///
+  /// This only compares the bounds, so it can't tell an adjacency that depends
+  /// on the values themselves: `..<5` and `5..` adjoin, but `..=4` and `5..`
+  /// don't, because nothing here knows that no [int] lies between 4 and 5.
+  ///
+  /// Deliberately a static rather than a method on [end]: A
+  /// `const UnboundedBound()` inside a generic class is an
+  /// `UnboundedBound<Never>`, so as a method its parameter would be a
+  /// `Bound<Never>` and reject every real bound at runtime.
+  static bool adjoins<C extends Comparable<C>>(Bound<C> end, Bound<C> start) {
+    if (end.isUnbounded || start.isUnbounded) return true;
+
+    final comparison = end.valueOrNull!.compareTo(start.valueOrNull!);
+    if (comparison != 0) return comparison > 0;
+
+    // Both refer to the same value: It's covered unless both bounds exclude
+    // it.
+    return end is InclusiveBound<C> || start is InclusiveBound<C>;
   }
 
   /// Whether this is a bound with an exact (inclusive or exclusive) value.
@@ -86,6 +115,18 @@ sealed class Bound<C extends Comparable<C>> {
     InclusiveBound(value: final value) => value,
     ExclusiveBound(value: final value) => value,
     UnboundedBound() => null,
+  };
+
+  /// This bound as the opposite kind of edge: The end bound of everything
+  /// before a start bound, and the start bound of everything after an end
+  /// bound.
+  ///
+  /// Inclusive and exclusive swap, since the value itself changes sides. An
+  /// unbounded bound stays unbounded, because there is nothing beyond it.
+  Bound<C> get inverted => switch (this) {
+    InclusiveBound(value: final value) => ExclusiveBound(value),
+    ExclusiveBound(value: final value) => InclusiveBound(value),
+    UnboundedBound() => this,
   };
 
   /// Map the value of this bound using [mapper].

@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import '../deranged.dart';
 import 'codec.dart';
-import 'range_set.dart';
 import 'utils.dart';
 
 // RangeBounds
@@ -199,10 +198,8 @@ abstract class RangeBounds<C extends Comparable<C>> extends RangeLike<C> {
   /// Two ranges always overlap in a single range, so unlike [operator &] this
   /// stays a range. It is the intersection counterpart of [span].
   AnyRange<C> intersect(RangeBounds<C> other) => AnyRange(
-    compareStartBounds(startBound, other.startBound) >= 0
-        ? startBound
-        : other.startBound,
-    compareEndBounds(endBound, other.endBound) <= 0 ? endBound : other.endBound,
+    .laterStart(startBound, other.startBound),
+    .earlierEnd(endBound, other.endBound),
   );
 
   AnyRange<C> copyWithBounds({Bound<C>? startBound, Bound<C>? endBound}) =>
