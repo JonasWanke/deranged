@@ -180,8 +180,15 @@ final class UnboundedBound<C extends Comparable<C>> extends Bound<C> {
   UnboundedBound<D> cast<D extends Comparable<D>>() => UnboundedBound();
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is UnboundedBound<C>;
+  bool operator ==(Object other) {
+    // Deliberately not `UnboundedBound<C>`: An unbounded bound holds no value,
+    // so [C] is only ever phantom here. Comparing it would make `==`
+    // asymmetric, because `const UnboundedBound()` inside a generic class can't
+    // name that class's type parameter and becomes
+    // `UnboundedBound<Never>`.
+    return identical(this, other) || other is UnboundedBound;
+  }
+
   @override
   int get hashCode => 0;
 
