@@ -171,6 +171,18 @@ class Chapter with Step<Chapter> {
 
 Mix in [`StepUnlimited`] instead when your type has no first or last value: It narrows `stepBy(…)` to a non-nullable return, so the range API stops handing you nullable results.
 
+The generic ranges don't implement [`Iterable`]: Only the [`int`] ones do, since only they can be iterable for every instance. Instead, [`iter`][`derangedRangeInclusiveOfStep.iter`] gives you an [`Iterable`] over a [`Step`] range's values:
+
+```dart
+final chapters = const Chapter(1).rangeTo(const Chapter(5));
+
+chapters.iter;                          // Chapter 1, 2, 3, 4, 5
+chapters.iter.map((it) => it.number);   // and all other iterable operations
+for (final chapter in chapters.iter) { … }
+```
+
+It exists on [`Range`], [`RangeInclusive`], and [`RangeFrom`], the last of which yields values until the type runs out.
+
 This is also the workaround for [`int`] not being able to implement [`Step`] (see the note above): Wrap it in a type of your own, which usually models the domain better anyway.
 
 See [`example/main.dart`][`example`] for the runnable version, and the [Chrono] package for a real-world set: Its `Date`, `Year`, `YearMonth`, and `YearWeek` mix in [`StepUnlimited`], its bounded `Month` and `Weekday` mixes in [`Step`].
@@ -268,6 +280,7 @@ DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
 [`RangeFrom`]: https://pub.dev/documentation/deranged/latest/deranged/RangeFrom-class.html
 [`RangeFull`]: https://pub.dev/documentation/deranged/latest/deranged/RangeFull-class.html
 [`RangeInclusive`]: https://pub.dev/documentation/deranged/latest/deranged/RangeInclusive-class.html
+[`derangedRangeInclusiveOfStep.iter`]: https://pub.dev/documentation/deranged/latest/deranged/DerangedRangeInclusiveOfStep/iter.html
 [`derangedRangeInclusiveOfStep.length`]: https://pub.dev/documentation/deranged/latest/deranged/DerangedRangeInclusiveOfStep/length.html
 [`derangedRangeInclusiveOfStep.reverse`]: https://pub.dev/documentation/deranged/latest/deranged/DerangedRangeInclusiveOfStep/reverse.html
 [`RangeTo`]: https://pub.dev/documentation/deranged/latest/deranged/RangeTo-class.html
