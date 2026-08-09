@@ -406,16 +406,40 @@ extension DerangedRangeOfStep<T extends Step<T>> on Range<T> {
 
   /// Returns a [StepProgression] with this range's [start] and [end],
   /// as well as the given [step].
-  StepProgression<T>? stepBy(int step) {
+  StepProgression<T> stepBy(int step) {
     final endInclusive = this.endInclusive;
     return endInclusive == null
-        ? null
+        ? _empty(step)
         : StepProgression(start, endInclusive, step);
+  }
+
+  /// An empty [StepProgression] with the given [step], describing the same
+  /// (no) values as this range.
+  ///
+  /// Only valid when [endInclusive] is `null`, i.e., when [end] is the smallest
+  /// possible value and hence this range is empty.
+  ///
+  /// A [StepProgression] represents emptiness through the order of its bounds,
+  /// so it takes two distinct values – `start == endInclusive` always describes
+  /// exactly one value. [start] and [end] only differ if this range's [start]
+  /// is greater than [end], so the successor of [start] is the fallback.
+  StepProgression<T> _empty(int step) {
+    final higher = start == end ? start.stepBy(1) : start;
+    if (higher == null) {
+      throw StateError(
+        '`$T` has a single value only, so no empty `StepProgression` of it '
+        'exists. Every other type has one, making this unreachable.',
+      );
+    }
+
+    return step > 0
+        ? StepProgression(higher, end, step)
+        : StepProgression(end, higher, step);
   }
 
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
-  Iterable<T>? get iter => stepBy(1);
+  Iterable<T> get iter => stepBy(1);
 
   /// Returns the length of this range, i.e., how many steps it contains.
   ///
@@ -436,10 +460,11 @@ extension DerangedRangeOfStep<T extends Step<T>> on Range<T> {
     return start == null || end == null ? null : Range(start, end);
   }
 
-  StepProgression<T>? get reverse {
+  /// Returns a [StepProgression] with this range's values in descending order.
+  StepProgression<T> get reverse {
     final endInclusive = this.endInclusive;
     return endInclusive == null
-        ? null
+        ? _empty(-1)
         : StepProgression(endInclusive, start, -1);
   }
 
@@ -461,15 +486,6 @@ extension DerangedRangeOfStepUnlimited<T extends StepUnlimited<T>> on Range<T> {
 
   /// Returns a [RangeInclusive] representing a range with the same values.
   RangeInclusive<T> get inclusive => RangeInclusive(start, endInclusive);
-
-  /// Returns a [StepProgression] with this range's [start] and [end],
-  /// as well as the given [step].
-  StepProgression<T> stepBy(int step) =>
-      StepProgression(start, endInclusive, step);
-
-  /// Returns an [Iterable] that steps through every value of this range in
-  /// ascending order.
-  Iterable<T> get iter => stepBy(1);
 
   /// Returns this range with both bounds moved by [offset] steps.
   Range<T> shift(int offset) => Range(start.stepBy(offset), end.stepBy(offset));

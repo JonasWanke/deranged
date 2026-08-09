@@ -72,6 +72,36 @@ void main() {
       // as a `RangeInclusive`.
       expect(const Range(_Foo(0), _Foo(_Foo.min)).inclusive, null);
     });
+
+    test('stepBy, iter & reverse', () {
+      const range = Range(_Foo(0), _Foo(5));
+
+      expect(range.stepBy(2), const StepProgression(_Foo(0), _Foo(4), 2));
+      expect(range.iter, [
+        const _Foo(0),
+        const _Foo(1),
+        const _Foo(2),
+        const _Foo(3),
+        const _Foo(4),
+      ]);
+      expect(range.reverse, const StepProgression(_Foo(4), _Foo(0), -1));
+    });
+
+    test('stepBy, iter & reverse are empty without an end predecessor', () {
+      for (final range in [
+        // The bounds differ, so they can be swapped to express emptiness.
+        const Range(_Foo(0), _Foo(_Foo.min)),
+        // Equal bounds, so the successor of the start is used instead.
+        const Range(_Foo(_Foo.min), _Foo(_Foo.min)),
+      ]) {
+        expect(range.length, 0);
+        for (final step in [1, 2, -1, -2]) {
+          expect(range.stepBy(step), isEmpty, reason: '$range stepBy $step');
+        }
+        expect(range.iter, isEmpty, reason: '$range');
+        expect(range.reverse, isEmpty, reason: '$range');
+      }
+    });
   });
 
   group('RangeInclusive', () {
