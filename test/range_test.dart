@@ -36,7 +36,7 @@ void main() {
     );
   });
 
-  group('RangeBoundsOfStepExtension', () {
+  group('DerangedRangeBoundsOfStep', () {
     test('converts bounds in both directions', () {
       const range = Range(_Foo(0), _Foo(5));
 

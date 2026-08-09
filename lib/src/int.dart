@@ -226,7 +226,7 @@ class IntRangeUntilAsMapCodec
   IntRangeUntil create(int value) => IntRangeUntil(value);
 }
 
-extension IntExtension on int {
+extension DerangedInt on int {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   IntRange rangeUntil(int other) => IntRange(this, other);
 
@@ -236,7 +236,7 @@ extension IntExtension on int {
   /// Creates a range from `this` (inclusive) to `this + length` (exclusive),
   /// containing [length] values.
   ///
-  /// See [StepExtension.rangeUntilWithLength] for why there's no
+  /// See [DerangedStep.rangeUntilWithLength] for why there's no
   /// inclusive-end counterpart.
   IntRange rangeUntilWithLength(int length) => IntRange(this, this + length);
 }

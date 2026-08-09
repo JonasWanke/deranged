@@ -36,7 +36,7 @@ Since some functions might take only specific kinds of ranges, there are multipl
 <sup>3</sup> no separate class; write `IntRangeUntil(end + 1)`.
 
 Names follow one convention: **`until` means an exclusive end, `to` means an inclusive end.**
-This holds for class names ([`RangeUntil`] is `..<end`, [`RangeTo`] is `..=end`) as well as method names ([`.rangeUntil(…)`][`comparableExtension.rangeUntil`] creates a [`Range`], [`.rangeTo(…)`][`comparableExtension.rangeTo`] creates a [`RangeInclusive`]).
+This holds for class names ([`RangeUntil`] is `..<end`, [`RangeTo`] is `..=end`) as well as method names ([`.rangeUntil(…)`][`derangedComparable.rangeUntil`] creates a [`Range`], [`.rangeTo(…)`][`derangedComparable.rangeTo`] creates a [`RangeInclusive`]).
 
 To create a range, you can use the constructors of these classes directly, or those extension methods on [`Comparable`] objects.
 If there's no specific range class for the bounds you want, you can use the [`AnyRange`] class with any bounds.
@@ -153,7 +153,7 @@ For types other than [`int`], you can mix in [`Step`] and use [`StepProgression`
 ## Implementing `Step`
 
 The generic ranges only need [`Comparable`] for [`contains(…)`][`rangeBounds.contains`] and friends.
-Anything that walks a range one value at a time – iterating, [`length`][`rangeInclusiveOfStepExtension.length`], indexing, [`reverse`][`rangeInclusiveOfStepExtension.reverse`], progressions, and converting between inclusive and exclusive bounds – additionally needs to know each value's successor and predecessor.
+Anything that walks a range one value at a time – iterating, [`length`][`derangedRangeInclusiveOfStep.length`], indexing, [`reverse`][`derangedRangeInclusiveOfStep.reverse`], progressions, and converting between inclusive and exclusive bounds – additionally needs to know each value's successor and predecessor.
 That's [`Step`]:
 
 ```dart
@@ -248,8 +248,8 @@ DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
 [`Bound`]: https://pub.dev/documentation/deranged/latest/deranged/Bound-class.html
 [`BoundAsMapCodec`]: https://pub.dev/documentation/deranged/latest/deranged/BoundAsMapCodec-class.html
 [`FunctionBasedCodec`]: https://pub.dev/documentation/deranged/latest/deranged/FunctionBasedCodec-class.html
-[`comparableExtension.rangeTo`]: https://pub.dev/documentation/deranged/latest/deranged/ComparableExtension/rangeTo.html
-[`comparableExtension.rangeUntil`]: https://pub.dev/documentation/deranged/latest/deranged/ComparableExtension/rangeUntil.html
+[`derangedComparable.rangeTo`]: https://pub.dev/documentation/deranged/latest/deranged/DerangedComparable/rangeTo.html
+[`derangedComparable.rangeUntil`]: https://pub.dev/documentation/deranged/latest/deranged/DerangedComparable/rangeUntil.html
 [`DoubleRange`]: https://pub.dev/documentation/deranged/latest/deranged/DoubleRange-class.html
 [`DoubleRangeFrom`]: https://pub.dev/documentation/deranged/latest/deranged/DoubleRangeFrom-class.html
 [`DoubleRangeFull`]: https://pub.dev/documentation/deranged/latest/deranged/DoubleRangeFull-class.html
@@ -276,7 +276,7 @@ DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
 [`rangeLike.|`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike/operator_bitwise_or.html
 [`rangeLike.~`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike/operator_unary_bitwise_negate.html
 [`RangeLike`]: https://pub.dev/documentation/deranged/latest/deranged/RangeLike-class.html
-[`rangeSet.coalescedAsInts`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSetOfIntExtension/coalescedAsInts.html
+[`rangeSet.coalescedAsInts`]: https://pub.dev/documentation/deranged/latest/deranged/DerangedRangeSetOfInt/coalescedAsInts.html
 [`rangeSet.ranges`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet/ranges.html
 [`RangeSet`]: https://pub.dev/documentation/deranged/latest/deranged/RangeSet-class.html
 [`Range`]: https://pub.dev/documentation/deranged/latest/deranged/Range-class.html
@@ -285,8 +285,8 @@ DateTime _decodeDate(Object? it) => DateTime.parse(it! as String);
 [`RangeFrom`]: https://pub.dev/documentation/deranged/latest/deranged/RangeFrom-class.html
 [`RangeFull`]: https://pub.dev/documentation/deranged/latest/deranged/RangeFull-class.html
 [`RangeInclusive`]: https://pub.dev/documentation/deranged/latest/deranged/RangeInclusive-class.html
-[`rangeInclusiveOfStepExtension.length`]: https://pub.dev/documentation/deranged/latest/deranged/RangeInclusiveOfStepExtension/length.html
-[`rangeInclusiveOfStepExtension.reverse`]: https://pub.dev/documentation/deranged/latest/deranged/RangeInclusiveOfStepExtension/reverse.html
+[`derangedRangeInclusiveOfStep.length`]: https://pub.dev/documentation/deranged/latest/deranged/DerangedRangeInclusiveOfStep/length.html
+[`derangedRangeInclusiveOfStep.reverse`]: https://pub.dev/documentation/deranged/latest/deranged/DerangedRangeInclusiveOfStep/reverse.html
 [`RangeTo`]: https://pub.dev/documentation/deranged/latest/deranged/RangeTo-class.html
 [`RangeUntil`]: https://pub.dev/documentation/deranged/latest/deranged/RangeUntil-class.html
 [`Step`]: https://pub.dev/documentation/deranged/latest/deranged/Step-mixin.html

@@ -69,7 +69,7 @@ void main() {
     expect(range.contains(5.1), false);
   });
 
-  group('DoubleExtension', () {
+  group('DerangedDouble', () {
     test('rangeUntil(…) keeps the end as-is and excludes it', () {
       final range = 0.0.rangeUntil(5);
 

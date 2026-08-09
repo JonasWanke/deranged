@@ -41,7 +41,7 @@ mixin Step<C extends Step<C>> implements Comparable<C> {
   int stepsUntil(C other);
 }
 
-extension StepExtension<C extends Step<C>> on C {
+extension DerangedStep<C extends Step<C>> on C {
   /// Creates a range from `this` (inclusive) to `this.stepBy(length)`
   /// (exclusive), containing [length] values.
   ///
@@ -50,7 +50,7 @@ extension StepExtension<C extends Step<C>> on C {
   /// There's no inclusive-end counterpart: A range's length is only
   /// `end - start` when the end is exclusive, so a closed range built from a
   /// length would contain `length + 1` values. Use
-  /// [RangeOfStepExtension.inclusive] to convert if you need one.
+  /// [DerangedRangeOfStep.inclusive] to convert if you need one.
   Range<C>? rangeUntilWithLength(int length) {
     final end = stepBy(length);
     if (end == null) return null;
@@ -75,11 +75,11 @@ mixin StepUnlimited<C extends StepUnlimited<C>> implements Step<C> {
   C get next => stepBy(1);
 }
 
-extension StepUnlimitedExtension<C extends StepUnlimited<C>> on C {
+extension DerangedStepUnlimited<C extends StepUnlimited<C>> on C {
   /// Creates a range from `this` (inclusive) to `this.stepBy(length)`
   /// (exclusive), containing [length] values.
   ///
-  /// See [StepExtension.rangeUntilWithLength] for why there's no
+  /// See [DerangedStep.rangeUntilWithLength] for why there's no
   /// inclusive-end counterpart.
   Range<C> rangeUntilWithLength(int length) => Range(this, stepBy(length));
 }

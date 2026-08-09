@@ -12,8 +12,8 @@ import 'utils.dart';
 ///
 /// Names follow one convention: **`until` means an exclusive end, `to` means an
 /// inclusive end** — in class names ([RangeUntil] vs. [RangeTo]) as well as in
-/// method names ([ComparableExtension.rangeUntil] vs.
-/// [ComparableExtension.rangeTo]).
+/// method names ([DerangedComparable.rangeUntil] vs.
+/// [DerangedComparable.rangeTo]).
 ///
 /// Here's an overview of the different subclasses:
 ///
@@ -222,7 +222,7 @@ abstract class RangeBounds<C extends Comparable<C>> extends RangeLike<C> {
   String toString() => 'RangeBounds($startBound, $endBound)';
 }
 
-extension RangeBoundsOfStepExtension<T extends Step<T>> on RangeBounds<T> {
+extension DerangedRangeBoundsOfStep<T extends Step<T>> on RangeBounds<T> {
   /// Returns the inclusive start of this range, or `null` if this range has no
   /// bounded start.
   ///
@@ -362,10 +362,10 @@ class RangeFull<C extends Comparable<C>> extends RangeBounds<C> {
 ///
 /// If [C] implements [Step], you can:
 ///
-/// - iterate through the range using the [RangeOfStepExtension.iter] extension
+/// - iterate through the range using the [DerangedRangeOfStep.iter] extension
 ///   getter
 /// - convert this range to a [RangeInclusive] (with an inclusive end bound)
-///  using the [RangeOfStepExtension.inclusive] extension getter
+///  using the [DerangedRangeOfStep.inclusive] extension getter
 class Range<C extends Comparable<C>> extends RangeBounds<C> {
   const Range(this.start, this.end);
 
@@ -390,7 +390,7 @@ class Range<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'Range($start..<$end)';
 }
 
-extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
+extension DerangedRangeOfStep<T extends Step<T>> on Range<T> {
   T? get endInclusive => end.stepBy(-1);
 
   /// Returns a [RangeInclusive] representing a range with the same values, or
@@ -456,8 +456,7 @@ extension RangeOfStepExtension<T extends Step<T>> on Range<T> {
   }
 }
 
-extension RangeOfStepUnlimitedExtension<T extends StepUnlimited<T>>
-    on Range<T> {
+extension DerangedRangeOfStepUnlimited<T extends StepUnlimited<T>> on Range<T> {
   T get endInclusive => end.stepBy(-1);
 
   /// Returns a [RangeInclusive] representing a range with the same values.
@@ -495,10 +494,10 @@ class RangeAsMapCodec<C extends Comparable<C>>
 ///
 /// If [C] implements [Step], you can:
 ///
-/// - iterate through the range using the [RangeInclusiveOfStepExtension.iter]
+/// - iterate through the range using the [DerangedRangeInclusiveOfStep.iter]
 ///   extension getter
 /// - convert this range to a [Range] (with an exclusive end bound) using the
-///  [RangeInclusiveOfStepExtension.exclusive] extension getter
+///  [DerangedRangeInclusiveOfStep.exclusive] extension getter
 class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   const RangeInclusive(this.start, this.end);
   const RangeInclusive.single(C value) : start = value, end = value;
@@ -539,8 +538,7 @@ class RangeInclusive<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeInclusive($start..=$end)';
 }
 
-extension RangeInclusiveOfStepExtension<T extends Step<T>>
-    on RangeInclusive<T> {
+extension DerangedRangeInclusiveOfStep<T extends Step<T>> on RangeInclusive<T> {
   T? get endExclusive => end.stepBy(1);
 
   /// Returns a [Range] representing a range with the same values.
@@ -625,7 +623,7 @@ extension RangeInclusiveOfStepExtension<T extends Step<T>>
   }
 }
 
-extension RangeInclusiveOfStepUnlimitedExtension<T extends StepUnlimited<T>>
+extension DerangedRangeInclusiveOfStepUnlimited<T extends StepUnlimited<T>>
     on RangeInclusive<T> {
   T get endExclusive => end.stepBy(1);
 
@@ -637,13 +635,13 @@ extension RangeInclusiveOfStepUnlimitedExtension<T extends StepUnlimited<T>>
       RangeInclusive(start.stepBy(offset), end.stepBy(offset));
 }
 
-extension IterableOfRangeInclusiveExtension<C extends Comparable<C>>
+extension DerangedIterableOfRangeInclusive<C extends Comparable<C>>
     on Iterable<RangeInclusive<C>> {
   /// The smallest [RangeInclusive] containing all contained ranges, or `null`
   /// if there are none.
   ///
   /// This bridges the gaps between them. For the union, which keeps the gaps,
-  /// use [IterableOfRangeLikeExtension.asRangeSet].
+  /// use [DerangedIterableOfRangeLike.asRangeSet].
   ///
   /// See [RangeLike.span] for details.
   RangeInclusive<C>? get span => fold(
@@ -715,7 +713,7 @@ class RangeFrom<C extends Comparable<C>> extends RangeBounds<C> {
   String toString() => 'RangeFrom($start..)';
 }
 
-extension RangeFromOfStepExtension<T extends Step<T>> on RangeFrom<T> {
+extension DerangedRangeFromOfStep<T extends Step<T>> on RangeFrom<T> {
   /// Returns an [Iterable] that steps through every value of this range in
   /// ascending order.
   Iterable<T> get iter sync* {
@@ -828,7 +826,7 @@ class RangeToAsMapCodec<C extends Comparable<C>>
 
 // Utils
 
-extension ComparableExtension<C extends Comparable<C>> on C {
+extension DerangedComparable<C extends Comparable<C>> on C {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   Range<C> rangeUntil(C other) => Range(this, other);
 

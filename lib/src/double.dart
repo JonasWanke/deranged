@@ -238,7 +238,7 @@ class DoubleRangeToAsMapCodec
   DoubleRangeTo create(double value) => DoubleRangeTo(value);
 }
 
-extension DoubleExtension on double {
+extension DerangedDouble on double {
   /// Creates a range from `this` (inclusive) to [other] (exclusive).
   DoubleRange rangeUntil(double other) => DoubleRange(this, other);
 

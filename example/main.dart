@@ -66,7 +66,7 @@ void main() {
 ///
 /// Implementing [Step] is what makes the generic ranges usable with a custom
 /// type: It provides the successor/predecessor operations that iterating,
-/// [RangeInclusiveOfStepExtension.length] and converting between inclusive and
+/// [DerangedRangeInclusiveOfStep.length] and converting between inclusive and
 /// exclusive bounds all need.
 ///
 /// This also shows the workaround for [int] not being able to implement [Step]

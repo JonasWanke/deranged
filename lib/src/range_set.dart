@@ -25,7 +25,7 @@ import 'codec.dart';
 /// Whether two ranges adjoin is decided from their bounds alone, so
 /// `0..<5` and `5..<10` merge, but `0..=4` and `5..=9` don't – nothing here
 /// knows that no [int] lies between 4 and 5. For types that do know, see
-/// [RangeSetOfStepExtension.coalesced].
+/// [DerangedRangeSetOfStep.coalesced].
 class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
   /// Creates a set describing the values of all given [ranges].
   factory RangeSet.of(Iterable<RangeLike<C>> ranges) =>
@@ -172,8 +172,8 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
   /// two ranges –  it can't know whether anything lies between 4 and 5.
   /// [next] supplies exactly that knowledge.
   ///
-  /// Prefer [RangeSetOfStepExtension.coalesced], which derives [next] from the
-  /// type, or [RangeSetOfIntExtension.coalescedAsInts] for [int] sets.
+  /// Prefer [DerangedRangeSetOfStep.coalesced], which derives [next] from the
+  /// type, or [DerangedRangeSetOfInt.coalescedAsInts] for [int] sets.
   RangeSet<C> coalescedBy(C? Function(C) next) {
     if (ranges.length < 2) return this;
 
@@ -274,7 +274,7 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
   };
 }
 
-extension RangeSetOfStepExtension<T extends Step<T>> on RangeSet<T> {
+extension DerangedRangeSetOfStep<T extends Step<T>> on RangeSet<T> {
   /// This set with ranges merged that have no values between them.
   ///
   /// [RangeSet] normalization only looks at bound values, so it keeps
@@ -283,10 +283,10 @@ extension RangeSetOfStepExtension<T extends Step<T>> on RangeSet<T> {
   RangeSet<T> get coalesced => coalescedBy((it) => it.next);
 }
 
-extension RangeSetOfIntExtension on RangeSet<num> {
+extension DerangedRangeSetOfInt on RangeSet<num> {
   /// This set with ranges merged that have no [int]s between them.
   ///
-  /// The [int] counterpart of [RangeSetOfStepExtension.coalesced]: [int] can't
+  /// The [int] counterpart of [DerangedRangeSetOfStep.coalesced]: [int] can't
   /// implement [Step], because it is a `Comparable<num>` rather than a
   /// `Comparable<int>`.
   ///
@@ -296,7 +296,7 @@ extension RangeSetOfIntExtension on RangeSet<num> {
   RangeSet<num> get coalescedAsInts => coalescedBy((it) => it + 1);
 }
 
-extension IterableOfRangeLikeExtension<C extends Comparable<C>>
+extension DerangedIterableOfRangeLike<C extends Comparable<C>>
     on Iterable<RangeLike<C>> {
   /// A [RangeSet] describing the values of all of these.
   RangeSet<C> get asRangeSet => .of(this);
