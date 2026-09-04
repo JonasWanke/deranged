@@ -117,6 +117,11 @@ class IntRangeAsMapCodec extends StartEndAsMapCodec<IntRange, int> {
   IntRange create(int start, int end) => IntRange(start, end);
 }
 
+extension DerangedIterable<T> on Iterable<T> {
+  /// Returns the range of valid indices for this iterable.
+  IntRange get indices => IntRange(0, length);
+}
+
 // IntRangeFrom
 
 /// A range of [int] starting from an inclusive bound and without an end bound.
