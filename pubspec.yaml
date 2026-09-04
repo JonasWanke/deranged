@@ -17,5 +17,5 @@ dev_dependencies:
     git:
       url: https://github.com/JonasWanke/supernova.git
       path: supernova_lints
-      ref: 3b8fc18a1f2a65153763a8e7528f68997c00808f
+      ref: f63adb513a14c4410dd8f757712964d9498dae85
   test: ^1.16.8

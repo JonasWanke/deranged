@@ -112,8 +112,8 @@ sealed class Bound<C extends Comparable<C>> {
   bool get isUnbounded => !isBounded;
 
   C? get valueOrNull => switch (this) {
-    InclusiveBound(value: final value) => value,
-    ExclusiveBound(value: final value) => value,
+    InclusiveBound(:final value) => value,
+    ExclusiveBound(:final value) => value,
     UnboundedBound() => null,
   };
 
@@ -124,8 +124,8 @@ sealed class Bound<C extends Comparable<C>> {
   /// Inclusive and exclusive swap, since the value itself changes sides. An
   /// unbounded bound stays unbounded, because there is nothing beyond it.
   Bound<C> get inverted => switch (this) {
-    InclusiveBound(value: final value) => ExclusiveBound(value),
-    ExclusiveBound(value: final value) => InclusiveBound(value),
+    InclusiveBound(:final value) => ExclusiveBound(value),
+    ExclusiveBound(:final value) => InclusiveBound(value),
     UnboundedBound() => this,
   };
 
@@ -248,11 +248,11 @@ class BoundAsMapCodec<C extends Comparable<C>> extends AsMapCodec<Bound<C>, C> {
 
   @override
   Map<String, dynamic> encode(Bound<C> input) => switch (input) {
-    InclusiveBound(value: final value) => {
+    InclusiveBound(:final value) => {
       'type': _inclusive,
       'value': encodeValue(value),
     },
-    ExclusiveBound(value: final value) => {
+    ExclusiveBound(:final value) => {
       'type': _exclusive,
       'value': encodeValue(value),
     },

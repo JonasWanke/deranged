@@ -184,8 +184,8 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
       // hold none. An unbounded end can only occur on the last range, which
       // has nothing after it to merge with.
       final widened = switch (last.endBound) {
-        InclusiveBound(value: final value) => next(value),
-        ExclusiveBound(value: final value) => value,
+        InclusiveBound(:final value) => next(value),
+        ExclusiveBound(:final value) => value,
         UnboundedBound() => null,
       };
       if (widened != null &&
@@ -219,13 +219,13 @@ class RangeSet<C extends Comparable<C>> extends RangeLike<C> {
 
   static String _format<C extends Comparable<C>>(AnyRange<C> range) {
     final start = switch (range.startBound) {
-      InclusiveBound(value: final value) => '$value',
-      ExclusiveBound(value: final value) => '>$value',
+      InclusiveBound(:final value) => '$value',
+      ExclusiveBound(:final value) => '>$value',
       UnboundedBound() => '',
     };
     final end = switch (range.endBound) {
-      InclusiveBound(value: final value) => '..=$value',
-      ExclusiveBound(value: final value) => '..<$value',
+      InclusiveBound(:final value) => '..=$value',
+      ExclusiveBound(:final value) => '..<$value',
       UnboundedBound() => '..',
     };
     return '$start$end';
